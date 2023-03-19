@@ -2,7 +2,7 @@ use serde::de::DeserializeOwned;
 
 use url::Url;
 
-use crate::responses::{ApiStatus, Config, Event, Service, History, Logbook};
+use crate::responses::{ApiStatus, Config, Event, Service, History, Logbook, State};
 use crate::requests::{HistoryQueryParams, Queryable, LogbookParams};
 
 pub struct Client {
@@ -20,15 +20,14 @@ impl Client {
         })
     }
 
-    fn build_client(&self, endpoint: &str) -> reqwest::RequestBuilder {
-        reqwest::Client::new()
-            .get(format!("{}{}", self.url, endpoint))
+    async fn get_request<T: DeserializeOwned>(&self, endpoint: &str) -> Result<T> {
+        let mut url = self.url.clone();
+        url.set_path(endpoint);
+
+        let request = reqwest::Client::new()
+            .get(url)
             .bearer_auth(self.token.clone())
             .header(reqwest::header::CONTENT_TYPE, "application/json")
-    }
-
-    async fn get_request<T: DeserializeOwned>(&self, endpoint: &str) -> Result<T> {
-        let request = self.build_client(endpoint)
             .send()
             .await?
             .json::<T>()
@@ -72,12 +71,16 @@ impl Client {
         self.get_request::<Vec<Service>>("/api/services").await
     }
 
-    pub async fn history(&self, args: HistoryQueryParams) -> Result<History> {
-        self.get_request_with_query::<History, _>(args).await
+    pub async fn history(&self, args: HistoryQueryParams) -> Result<Vec<Vec<History>>> {
+        self.get_request_with_query::<Vec<Vec<History>>, _>(args).await
     }
 
-    pub async fn logbook(&self, args: LogbookParams) -> Result<Logbook> {
-        self.get_request_with_query::<Logbook, _>(args).await
+    pub async fn logbook(&self, args: LogbookParams) -> Result<Vec<Logbook>> {
+        self.get_request_with_query::<Vec<Logbook>, _>(args).await
+    }
+
+    pub async fn states(&self) -> Result<Vec<State>> {
+        self.get_request::<Vec<State>>("/api/states").await
     }
 
 }

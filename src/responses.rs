@@ -1,11 +1,15 @@
-use serde_derive::Deserialize;
+use std::collections::HashMap;
 
-#[derive(Deserialize)]
+use chrono::{DateTime, FixedOffset};
+use serde_derive::Deserialize;
+use crate::deserialze::{deserialize_datetime, deserialize_optional_datetime};
+
+#[derive(Deserialize, Debug)]
 pub struct ApiStatus {
     pub message: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct UnitSystemConfig {
     pub length: String,
     pub mass: String,
@@ -13,7 +17,7 @@ pub struct UnitSystemConfig {
     pub volume: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct Config {
     pub components: Vec<String>,
     pub config_dir: String,
@@ -26,38 +30,59 @@ pub struct Config {
     pub whitelist_external_dirs: Vec<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct Event {
-    pub name: String,
+    pub event: String,
     pub listener_count: i32,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct Service {
     pub domain: String,
     pub services: Vec<String>,
 }
 
-#[derive(Deserialize)]
-pub struct HistroyAttributes {
-    pub friendly_name: String,
-    pub unit_of_measurement: String,
-}
-
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct History {
-    pub attributes: Option<HistroyAttributes>,
+    #[serde(default)]
+    pub attributes: Option<HashMap<String, String>>,
+
+    #[serde(default)]
     pub entity_id: Option<String>,
-    pub last_changed: String,
-    pub last_updated: Option<String>,
+
+    #[serde(default)]
+    #[serde(deserialize_with = "deserialize_optional_datetime")]
+    pub last_changed: Option<DateTime<FixedOffset>>,
+    
+    #[serde(default)]
+    #[serde(deserialize_with = "deserialize_optional_datetime")]
+    pub last_updated: Option<DateTime<FixedOffset>>,
     pub state: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct Logbook {
-    pub domain: String,
+    #[serde(default)]
+    pub domain: Option<String>,
     pub entity_id: String,
-    pub message: String,
-    pub name: String,
-    pub when: String, // TODO: Change to timestamp
+
+    #[serde(default)]
+    pub message: Option<String>,
+    
+    #[serde(default)]
+    pub name: Option<String>,
+    
+    #[serde(default)]
+    #[serde(deserialize_with = "deserialize_optional_datetime")]
+    pub when: Option<DateTime<FixedOffset>>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct State {
+    pub attributes: HashMap<String, String>,
+    pub entity_id: String,
+
+    #[serde(deserialize_with = "deserialize_datetime")]
+    pub last_changed: DateTime<FixedOffset>,
+    pub state: String,
 }

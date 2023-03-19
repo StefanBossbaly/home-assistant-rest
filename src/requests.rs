@@ -27,9 +27,18 @@ pub struct HistoryQueryParams {
 impl Queryable for HistoryQueryParams {
     fn generate_query(&self) -> Query {
         let mut query_params = Vec::new();
+        let mut endpoint = String::from("api/history/period");
+
+        if let Some(start_time) = self.start_time {
+            endpoint.push_str(format!("/{}", time_to_str(start_time)).as_str());
+        }
 
         if let Some(end_time) = self.end_time {
             query_params.push(("end_time".to_owned(), time_to_str(end_time)));
+        }
+
+        if let Some(ref filter_entity_ids) = self.filter_entity_ids {
+            query_params.push(("filter_entity_id".to_owned(), filter_entity_ids.join(",")));
         }
 
         if self.minimal_response {
@@ -45,7 +54,7 @@ impl Queryable for HistoryQueryParams {
         }
 
         Query {
-            endpoint: "api/history/".to_owned(),
+            endpoint,
             query_params,
         }
     }
