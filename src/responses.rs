@@ -37,3 +37,27 @@ pub struct Service {
     pub domain: String,
     pub services: Vec<String>,
 }
+
+#[derive(Deserialize)]
+pub struct HistroyAttributes {
+    pub friendly_name: String,
+    pub unit_of_measurement: String,
+}
+
+#[derive(Deserialize)]
+pub struct History {
+    pub attributes: Option<HistroyAttributes>,
+    pub entity_id: Option<String>,
+    pub last_changed: String,
+    pub last_updated: Option<String>,
+    pub state: String,
+}
+
+#[derive(Deserialize)]
+pub struct Logbook {
+    pub domain: String,
+    pub entity_id: String,
+    pub message: String,
+    pub name: String,
+    pub when: String, // TODO: Change to timestamp
+}

@@ -1,4 +1,5 @@
 mod client;
-pub mod types;
+pub mod responses;
+pub mod requests;
 
 pub use client::Client;

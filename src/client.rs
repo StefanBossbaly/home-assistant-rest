@@ -1,27 +1,29 @@
 use serde::de::DeserializeOwned;
-use reqwest;
 
-use crate::types::{ApiStatus, Config, Event, Service};
+use url::Url;
+
+use crate::responses::{ApiStatus, Config, Event, Service, History, Logbook};
+use crate::requests::{HistoryQueryParams, Queryable, LogbookParams};
 
 pub struct Client {
-    url: String,
+    url: Url,
     token: String,
 }
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 impl Client {
-    pub fn new(url: String, token: String) -> Self {
-        Client {
-            url,
-            token
-        }
+    pub fn new(url: &str, token: &str) -> Result<Self> {
+        Ok(Client {
+            url: Url::parse(url)?,
+            token: token.to_owned()
+        })
     }
 
     fn build_client(&self, endpoint: &str) -> reqwest::RequestBuilder {
         reqwest::Client::new()
             .get(format!("{}{}", self.url, endpoint))
-            .header("Authorization", format!("Bearer {}", self.token))
+            .bearer_auth(self.token.clone())
             .header(reqwest::header::CONTENT_TYPE, "application/json")
     }
 
@@ -35,20 +37,48 @@ impl Client {
         Ok(request)
     }
 
+    async fn get_request_with_query<T: DeserializeOwned, Q: Queryable>(&self, queryable: Q) -> Result<T> {
+        let query = queryable.generate_query();
+
+        let mut url = self.url.clone();
+        url.set_path(&query.endpoint);
+
+        let request = reqwest::Client::new()
+            .get(url)
+            .bearer_auth(self.token.clone())
+            .header(reqwest::header::CONTENT_TYPE, "application/json")
+            .query(&query.query_params)
+            .send()
+            .await?
+            .json::<T>()
+            .await?;
+
+        Ok(request)
+    }
+
     pub async fn api_status(&self) -> Result<ApiStatus> {
-        Ok(self.get_request::<ApiStatus>("/api/").await?)
+        self.get_request::<ApiStatus>("/api/").await
     }
 
     pub async fn config(&self) -> Result<Config> {
-        Ok(self.get_request::<Config>("/api/config").await?)
+        self.get_request::<Config>("/api/config").await
     }
 
     pub async fn events(&self) -> Result<Vec<Event>> {
-        Ok(self.get_request::<Vec<Event>>("/api/events").await?)
+        self.get_request::<Vec<Event>>("/api/events").await
     }
 
     pub async fn services(&self) -> Result<Vec<Service>> {
-        Ok(self.get_request::<Vec<Service>>("/api/services").await?)
+        self.get_request::<Vec<Service>>("/api/services").await
     }
+
+    pub async fn history(&self, args: HistoryQueryParams) -> Result<History> {
+        self.get_request_with_query::<History, _>(args).await
+    }
+
+    pub async fn logbook(&self, args: LogbookParams) -> Result<Logbook> {
+        self.get_request_with_query::<Logbook, _>(args).await
+    }
+
 }
 
