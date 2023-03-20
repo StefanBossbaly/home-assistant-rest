@@ -1,5 +1,9 @@
 use chrono::{DateTime, Utc};
 
+// TODO: This is a bit of a mess. Home Assistant REST API sometimes allows responses
+// to include a timestamp in both the path and also the get query. I want to switch
+// over to somthing like serde_qs but since there is not path support I need to find
+// a better solution. Currently we will just use this helper function.
 fn time_to_str(time: std::time::SystemTime) -> String {
     let datetime: DateTime<Utc> = time.into();
     format!("{}", datetime.format("%Y-%m-%mT%H:%M:%S%:z"))
@@ -21,13 +25,13 @@ pub struct HistoryQueryParams {
     pub end_time: Option<std::time::SystemTime>,
     pub minimal_response: bool,
     pub no_attributes: bool,
-    pub significant_changes_only: bool
+    pub significant_changes_only: bool,
 }
 
 impl Queryable for HistoryQueryParams {
     fn generate_query(&self) -> Query {
         let mut query_params = Vec::new();
-        let mut endpoint = String::from("api/history/period");
+        let mut endpoint = String::from("/api/history/period");
 
         if let Some(start_time) = self.start_time {
             endpoint.push_str(format!("/{}", time_to_str(start_time)).as_str());
@@ -70,6 +74,11 @@ pub struct LogbookParams {
 impl Queryable for LogbookParams {
     fn generate_query(&self) -> Query {
         let mut query_params = Vec::new();
+        let mut endpoint = String::from("/api/logbook");
+
+        if let Some(start_time) = self.start_time {
+            endpoint.push_str(format!("/{}", time_to_str(start_time)).as_str());
+        }
 
         if let Some(ref entity) = self.entity {
             query_params.push(("entity".to_owned(), entity.to_owned()));
@@ -80,7 +89,7 @@ impl Queryable for LogbookParams {
         }
 
         Query {
-            endpoint: "api/logbook".to_owned(),
+            endpoint,
             query_params,
         }
     }

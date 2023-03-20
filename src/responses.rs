@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
+use crate::deserialze::{deserialize_datetime, deserialize_optional_datetime};
 use chrono::{DateTime, FixedOffset};
 use serde_derive::Deserialize;
-use crate::deserialze::{deserialize_datetime, deserialize_optional_datetime};
 
 #[derive(Deserialize, Debug)]
 pub struct ApiStatus {
@@ -53,7 +53,7 @@ pub struct History {
     #[serde(default)]
     #[serde(deserialize_with = "deserialize_optional_datetime")]
     pub last_changed: Option<DateTime<FixedOffset>>,
-    
+
     #[serde(default)]
     #[serde(deserialize_with = "deserialize_optional_datetime")]
     pub last_updated: Option<DateTime<FixedOffset>>,
@@ -68,10 +68,10 @@ pub struct Logbook {
 
     #[serde(default)]
     pub message: Option<String>,
-    
+
     #[serde(default)]
     pub name: Option<String>,
-    
+
     #[serde(default)]
     #[serde(deserialize_with = "deserialize_optional_datetime")]
     pub when: Option<DateTime<FixedOffset>>,
