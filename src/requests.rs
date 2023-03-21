@@ -1,96 +1,97 @@
-use chrono::{DateTime, Utc};
+use crate::serialize::serialize_optional_datetime;
+use chrono::{DateTime, FixedOffset};
+use serde::Serialize;
+use serde_derive::Serialize;
 
-// TODO: This is a bit of a mess. Home Assistant REST API sometimes allows responses
-// to include a timestamp in both the path and also the get query. I want to switch
-// over to somthing like serde_qs but since there is not path support I need to find
-// a better solution. Currently we will just use this helper function.
-fn time_to_str(time: std::time::SystemTime) -> String {
-    let datetime: DateTime<Utc> = time.into();
-    format!("{}", datetime.format("%Y-%m-%mT%H:%M:%S%:z"))
-}
-
-pub struct Query {
+pub struct Query<T: Serialize> {
     pub endpoint: String,
-    pub query_params: Vec<(String, String)>,
+    pub query: T,
 }
 
 pub trait Queryable {
-    fn generate_query(&self) -> Query;
+    type QueryType: Serialize;
+    fn into_query(self) -> Query<Self::QueryType>;
 }
 
 #[derive(Default)]
-pub struct HistoryQueryParams {
+pub struct HistoryParams {
     pub filter_entity_ids: Option<Vec<String>>,
-    pub start_time: Option<std::time::SystemTime>,
-    pub end_time: Option<std::time::SystemTime>,
+    pub start_time: Option<DateTime<FixedOffset>>,
+    pub end_time: Option<DateTime<FixedOffset>>,
     pub minimal_response: bool,
     pub no_attributes: bool,
     pub significant_changes_only: bool,
 }
 
-impl Queryable for HistoryQueryParams {
-    fn generate_query(&self) -> Query {
-        let mut query_params = Vec::new();
+#[derive(Serialize, Debug)]
+pub struct HistoryQuery {
+    pub filter_entity_ids: Option<Vec<String>>,
+
+    #[serde(serialize_with = "serialize_optional_datetime")]
+    pub end_time: Option<DateTime<FixedOffset>>,
+    pub minimal_response: bool,
+    pub no_attributes: bool,
+    pub significant_changes_only: bool,
+}
+
+impl Queryable for HistoryParams {
+    type QueryType = HistoryQuery;
+
+    fn into_query(self) -> Query<Self::QueryType> {
         let mut endpoint = String::from("/api/history/period");
 
         if let Some(start_time) = self.start_time {
-            endpoint.push_str(format!("/{}", time_to_str(start_time)).as_str());
+            endpoint.push_str(format!("/{}", start_time.to_rfc3339()).as_str());
         }
 
-        if let Some(end_time) = self.end_time {
-            query_params.push(("end_time".to_owned(), time_to_str(end_time)));
-        }
+        let query = HistoryQuery {
+            filter_entity_ids: self.filter_entity_ids,
+            end_time: self.end_time,
+            minimal_response: self.minimal_response,
+            no_attributes: self.no_attributes,
+            significant_changes_only: self.significant_changes_only,
+        };
 
-        if let Some(ref filter_entity_ids) = self.filter_entity_ids {
-            query_params.push(("filter_entity_id".to_owned(), filter_entity_ids.join(",")));
-        }
-
-        if self.minimal_response {
-            query_params.push(("minimal_response".to_owned(), "true".to_owned()));
-        }
-
-        if self.no_attributes {
-            query_params.push(("no_attributes".to_owned(), "true".to_owned()));
-        }
-
-        if self.significant_changes_only {
-            query_params.push(("significant_changes_only".to_owned(), "true".to_owned()));
-        }
-
-        Query {
-            endpoint,
-            query_params,
-        }
+        Query { endpoint, query }
     }
 }
 
 #[derive(Default)]
 pub struct LogbookParams {
     pub entity: Option<String>,
-    pub start_time: Option<std::time::SystemTime>,
-    pub end_time: Option<std::time::SystemTime>,
+    pub start_time: Option<DateTime<FixedOffset>>,
+    pub end_time: Option<DateTime<FixedOffset>>,
+}
+
+#[derive(Serialize, Debug)]
+pub struct LogbookQuery {
+    pub entity: Option<String>,
+
+    #[serde(serialize_with = "serialize_optional_datetime")]
+    pub end_time: Option<DateTime<FixedOffset>>,
 }
 
 impl Queryable for LogbookParams {
-    fn generate_query(&self) -> Query {
-        let mut query_params = Vec::new();
+    type QueryType = LogbookQuery;
+
+    fn into_query(self) -> Query<Self::QueryType> {
         let mut endpoint = String::from("/api/logbook");
 
         if let Some(start_time) = self.start_time {
-            endpoint.push_str(format!("/{}", time_to_str(start_time)).as_str());
+            endpoint.push_str(format!("/{}", start_time.to_rfc3339()).as_str());
         }
 
-        if let Some(ref entity) = self.entity {
-            query_params.push(("entity".to_owned(), entity.to_owned()));
-        }
+        let query = LogbookQuery {
+            entity: self.entity.clone(),
+            end_time: self.end_time,
+        };
 
-        if let Some(end_time) = self.end_time {
-            query_params.push(("end_time".to_owned(), time_to_str(end_time)));
-        }
-
-        Query {
-            endpoint,
-            query_params,
-        }
+        Query { endpoint, query }
     }
+}
+
+pub struct CalendarEventParams {
+    pub entity_id: String,
+    pub start_time: DateTime<FixedOffset>,
+    pub end_time: DateTime<FixedOffset>,
 }

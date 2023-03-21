@@ -1,10 +1,10 @@
+use log::debug;
 use reqwest::RequestBuilder;
 use serde::de::DeserializeOwned;
-
 use url::Url;
 
-use crate::requests::{HistoryQueryParams, LogbookParams, Queryable};
-use crate::responses::{ApiStatus, Config, Event, History, Logbook, Service, State};
+use crate::requests::{HistoryParams, LogbookParams, Queryable};
+use crate::responses::{ApiStatus, Calendar, Config, Event, History, Logbook, Service, State};
 
 pub struct Client {
     url: Url,
@@ -24,6 +24,17 @@ impl Client {
     fn build_get_request(&self, endpoint: &str) -> RequestBuilder {
         let mut url = self.url.clone();
         url.set_path(endpoint);
+
+        reqwest::Client::new()
+            .get(url)
+            .bearer_auth(self.token.clone())
+            .header(reqwest::header::CONTENT_TYPE, "application/json")
+    }
+
+    fn build_get_request_with_query(&self, endpoint: &str, query: &str) -> RequestBuilder {
+        let mut url = self.url.clone();
+        url.set_path(endpoint);
+        url.set_query(Some(query));
 
         reqwest::Client::new()
             .get(url)
@@ -57,11 +68,14 @@ impl Client {
         &self,
         queryable: Q,
     ) -> Result<T> {
-        let query = queryable.generate_query();
+        let query = queryable.into_query();
+
+        let query_string = serde_qs::to_string(&query.query)?;
+
+        debug!(target: "homeassistant-rest", "Query string: {}", query_string);
 
         let request = self
-            .build_get_request(&query.endpoint)
-            .query(&query.query_params)
+            .build_get_request_with_query(&query.endpoint, &query_string)
             .send()
             .await?
             .json::<T>()
@@ -86,7 +100,7 @@ impl Client {
         self.get_request::<Vec<Service>>("/api/services").await
     }
 
-    pub async fn history(&self, args: HistoryQueryParams) -> Result<Vec<Vec<History>>> {
+    pub async fn history(&self, args: HistoryParams) -> Result<Vec<Vec<History>>> {
         self.get_request_with_query::<Vec<Vec<History>>, _>(args)
             .await
     }
@@ -101,5 +115,9 @@ impl Client {
 
     pub async fn error_log(&self) -> Result<String> {
         self.get_text_request("/api/error_log").await
+    }
+
+    pub async fn calendars(&self) -> Result<Vec<Calendar>> {
+        self.get_request("/api/calendars").await
     }
 }

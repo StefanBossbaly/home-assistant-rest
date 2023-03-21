@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use crate::deserialze::{deserialize_datetime, deserialize_optional_datetime};
-use chrono::{DateTime, FixedOffset};
+use crate::deserialize::{deserialize_date, deserialize_datetime, deserialize_optional_datetime};
+use chrono::{DateTime, FixedOffset, NaiveDate};
 use serde_derive::Deserialize;
 
 #[derive(Deserialize, Debug)]
@@ -85,4 +85,43 @@ pub struct State {
     #[serde(deserialize_with = "deserialize_datetime")]
     pub last_changed: DateTime<FixedOffset>,
     pub state: String,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Calendar {
+    pub entity_id: String,
+    pub name: String,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(untagged)]
+pub enum DateVariant {
+    #[serde(deserialize_with = "deserialize_datetime")]
+    DataTime(DateTime<FixedOffset>),
+
+    #[serde(deserialize_with = "deserialize_date")]
+    Date(NaiveDate),
+}
+
+#[derive(Deserialize, Debug)]
+pub struct CalendarEvent {
+    pub summary: String,
+
+    pub start: DateVariant,
+    pub end: DateVariant,
+
+    #[serde(default)]
+    pub location: Option<String>,
+
+    #[serde(default)]
+    pub description: Option<String>,
+
+    #[serde(default)]
+    pub uid: Option<String>,
+
+    #[serde(default)]
+    pub recurrence_id: Option<String>,
+
+    #[serde(default)]
+    pub rrule: Option<String>,
 }
