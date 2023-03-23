@@ -13,7 +13,7 @@ and the API might change at any time.
 
 | Endpoint                              | Request Type | Implemented        | Tested             |
 | ------------------------------------- | ------------ | ------------------ | ------------------ |
-| `/api/`                               | GET          | ✅                 | ❌                 |
+| `/api/`                               | GET          | ✅                 | ✅                 |
 | `/api/config`                         | GET          | ✅                 | ❌                 |
 | `/api/events`                         | GET          | ✅                 | ❌                 |
 | `/api/services`                       | GET          | ✅                 | ❌                 |
@@ -35,12 +35,12 @@ and the API might change at any time.
 ## Example
 
 ```rust
-    let base_url = "http://192.168.1.2:8123";
-    let token = "sdfef...";
+let base_url = "http://192.168.1.2:8123";
+let token = "sdfef...";
 
-    let client = Client::new(base_url, token)?;
-    let api_status = client.api_status().await?;
-    dbg!(api_status);
+let client = Client::new(base_url, token)?;
+let api_status = client.api_status().await?;
+dbg!(api_status);
 ```
 
 ## Authors
