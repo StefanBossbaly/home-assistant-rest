@@ -14,9 +14,9 @@ and the API might change at any time.
 | Endpoint                              | Request Type | Implemented        | Tested             |
 | ------------------------------------- | ------------ | ------------------ | ------------------ |
 | `/api/`                               | GET          | ✅                 | ✅                 |
-| `/api/config`                         | GET          | ✅                 | ❌                 |
-| `/api/events`                         | GET          | ✅                 | ❌                 |
-| `/api/services`                       | GET          | ✅                 | ❌                 |
+| `/api/config`                         | GET          | ✅                 | ✅                 |
+| `/api/events`                         | GET          | ✅                 | ✅                 |
+| `/api/services`                       | GET          | ✅                 | ✅                 |
 | `/api/history/period/<timestamp>`     | GET          | ✅                 | ❌                 |
 | `/api/logbook/<timestamp>`            | GET          | ✅                 | ❌                 |
 | `/api/states`                         | GET          | ✅                 | ❌                 |

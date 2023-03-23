@@ -27,6 +27,7 @@ pub struct Config {
     pub longitude: f32,
     pub time_zone: String,
     pub unit_system: UnitSystemConfig,
+    pub version: String,
     pub whitelist_external_dirs: Vec<String>,
 }
 
