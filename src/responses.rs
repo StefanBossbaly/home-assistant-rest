@@ -94,12 +94,13 @@ pub struct Calendar {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(untagged)]
 pub enum DateVariant {
-    #[serde(deserialize_with = "deserialize_datetime")]
+    #[serde(
+        rename(deserialize = "dateTime"),
+        deserialize_with = "deserialize_datetime"
+    )]
     DataTime(DateTime<FixedOffset>),
-
-    #[serde(deserialize_with = "deserialize_date")]
+    #[serde(rename(deserialize = "date"), deserialize_with = "deserialize_date")]
     Date(NaiveDate),
 }
 
