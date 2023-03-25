@@ -1,5 +1,6 @@
 use std::vec;
 
+use chrono::{FixedOffset, NaiveDate, NaiveDateTime, NaiveTime};
 use homeassistant_rest_rs::Client;
 use mockito::{Mock, ServerGuard};
 
@@ -15,6 +16,7 @@ async fn test_good_api_status_async() -> Result<(), Box<dyn std::error::Error>> 
     let mut server = mockito::Server::new();
 
     let mock_server = create_mock_server(&mut server, "/api/")
+        .match_query("")
         .with_body(r#"{"message": "API running."}"#)
         .create_async()
         .await;
@@ -34,6 +36,7 @@ async fn test_bad_api_status_async() -> Result<(), Box<dyn std::error::Error>> {
     let mut server = mockito::Server::new();
 
     let mock_server = create_mock_server(&mut server, "/api/")
+        .match_query("")
         .create_async()
         .await;
 
@@ -52,6 +55,7 @@ async fn test_good_config_async() -> Result<(), Box<dyn std::error::Error>> {
     let mut server = mockito::Server::new();
 
     let mock_server = create_mock_server(&mut server, "/api/config")
+        .match_query("")
         .with_body(
             r#"
         {
@@ -147,6 +151,7 @@ async fn test_good_events_async() -> Result<(), Box<dyn std::error::Error>> {
     let mut server = mockito::Server::new();
 
     let mock_server = create_mock_server(&mut server, "/api/events")
+        .match_query("")
         .with_body(
             r#"
         [
@@ -182,6 +187,7 @@ async fn test_good_services_async() -> Result<(), Box<dyn std::error::Error>> {
     let mut server = mockito::Server::new();
 
     let mock_server = create_mock_server(&mut server, "/api/services")
+        .match_query("")
         .with_body(
             r#"
         [
@@ -211,6 +217,97 @@ async fn test_good_services_async() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(services[0].services, vec!["browse_url"]);
     assert_eq!(services[1].domain, "keyboard");
     assert_eq!(services[1].services, vec!["volume_up", "volume_down"]);
+
+    mock_server.assert_async().await;
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_good_states_async() -> Result<(), Box<dyn std::error::Error>> {
+    let mut server = mockito::Server::new();
+
+    let mock_server = create_mock_server(&mut server, "/api/states")
+        .match_query("")
+        .with_body(
+            r#"
+        [
+            {
+                "attributes": {},
+                "entity_id": "sun.sun",
+                "last_changed": "2016-05-30T21:43:32.418320+00:00",
+                "state": "below_horizon"
+            },
+            {
+                "attributes": {},
+                "entity_id": "process.Dropbox",
+                "last_changed": "2017-05-30T21:43:32.418320+00:00",
+                "state": "on"
+            }
+        ]"#,
+        )
+        .create_async()
+        .await;
+
+    let client = Client::new(server.url().as_str(), "test_token")?;
+    let states = client.get_states().await?;
+
+    let timezone = FixedOffset::east_opt(0).unwrap();
+
+    assert_eq!(states.len(), 2);
+    assert!(states[0].attributes.is_empty());
+    assert_eq!(states[0].entity_id, "sun.sun");
+    assert_eq!(
+        NaiveDateTime::new(
+            NaiveDate::from_ymd_opt(2016, 5, 30).unwrap(),
+            NaiveTime::from_hms_nano_opt(21, 43, 32, 418_320_000).unwrap()
+        )
+        .and_local_timezone(timezone)
+        .unwrap(),
+        states[0].last_changed
+    );
+    assert_eq!(states[0].state, "below_horizon");
+
+    assert!(states[1].attributes.is_empty());
+    assert_eq!(states[1].entity_id, "process.Dropbox");
+    assert_eq!(
+        NaiveDateTime::new(
+            NaiveDate::from_ymd_opt(2017, 5, 30).unwrap(),
+            NaiveTime::from_hms_nano_opt(21, 43, 32, 418_320_000).unwrap()
+        )
+        .and_local_timezone(timezone)
+        .unwrap(),
+        states[1].last_changed
+    );
+    assert_eq!(states[1].state, "on");
+
+    mock_server.assert_async().await;
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_good_error_log_async() -> Result<(), Box<dyn std::error::Error>> {
+    let mut server = mockito::Server::new();
+
+    let mock_server = create_mock_server(&mut server, "/api/error_log")
+        .with_body(
+            r#"15-12-20 11:02:50 homeassistant.components.recorder: Found unfinished sessions
+15-12-20 11:03:03 netdisco.ssdp: Error fetching description at http://192.168.1.1:8200/rootDesc.xml
+15-12-20 11:04:36 homeassistant.components.alexa: Received unknown intent HelpIntent"#,
+        )
+        .create_async()
+        .await;
+
+    let client = Client::new(server.url().as_str(), "test_token")?;
+    let log = client.get_error_log().await?;
+
+    assert_eq!(
+        log,
+        r#"15-12-20 11:02:50 homeassistant.components.recorder: Found unfinished sessions
+15-12-20 11:03:03 netdisco.ssdp: Error fetching description at http://192.168.1.1:8200/rootDesc.xml
+15-12-20 11:04:36 homeassistant.components.alexa: Received unknown intent HelpIntent"#
+    );
 
     mock_server.assert_async().await;
 
