@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use reqwest::RequestBuilder;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -93,6 +94,17 @@ impl Client {
         Ok(request)
     }
 
+    async fn get_binary_request(&self, endpoint: &str) -> Result<Bytes> {
+        let request = self
+            .build_get_request(endpoint)
+            .send()
+            .await?
+            .bytes()
+            .await?;
+
+        Ok(request)
+    }
+
     async fn get_request<T: DeserializeOwned>(&self, endpoint: &str) -> Result<T> {
         let request = self
             .build_get_request(endpoint)
@@ -151,6 +163,10 @@ impl Client {
 
     pub async fn get_error_log(&self) -> Result<String> {
         self.get_text_request("/api/error_log").await
+    }
+
+    pub async fn get_camera_proxy(&self) -> Result<Bytes> {
+        unimplemented!()
     }
 
     pub async fn get_calendars(&self) -> Result<Vec<Calendar>> {
