@@ -313,3 +313,39 @@ async fn test_good_error_log_async() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
+
+#[tokio::test]
+async fn test_good_calendars_async() -> Result<(), Box<dyn std::error::Error>> {
+    let mut server = mockito::Server::new();
+
+    let mock_server = create_mock_server(&mut server, "/api/calendars")
+        .match_query("")
+        .with_body(
+            r#"
+        [
+            {
+                "entity_id": "calendar.holidays",
+                "name": "National Holidays"
+            },
+            {
+                "entity_id": "calendar.personal",
+                "name": "Personal Calendar"
+            }
+        ]"#,
+        )
+        .create_async()
+        .await;
+
+    let client = Client::new(server.url().as_str(), "test_token")?;
+    let calendards = client.get_calendars().await?;
+
+    assert_eq!(calendards.len(), 2);
+    assert_eq!(calendards[0].entity_id, "calendar.holidays");
+    assert_eq!(calendards[0].name, "National Holidays");
+    assert_eq!(calendards[1].entity_id, "calendar.personal");
+    assert_eq!(calendards[1].name, "Personal Calendar");
+
+    mock_server.assert_async().await;
+
+    Ok(())
+}

@@ -23,7 +23,7 @@ and the API might change at any time.
 | `/api/states/<entity_id>`             | GET          | ❌                 | ❌                 |
 | `/api/error_log`                      | GET          | ✅                 | ✅                 |
 | `/api/camera_proxy/<camera entity_id>`| GET          | ❌                 | ❌                 |
-| `/api/calendars`                      | GET          | ✅                 | ❌                 |
+| `/api/calendars`                      | GET          | ✅                 | ✅                 |
 | `/api/calendars/<calendar entity_id>` | GET          | ✅                 | ❌                 |
 | `/api/states/<entity_id>`             | POST         | ✅                 | ❌                 |
 | `/api/events/<event_type>`            | POST         | ❌                 | ❌                 |
