@@ -20,9 +20,9 @@ and the API might change at any time.
 | `/api/history/period/<timestamp>`     | GET          | ✅                 | ❌                 |
 | `/api/logbook/<timestamp>`            | GET          | ✅                 | ❌                 |
 | `/api/states`                         | GET          | ✅                 | ✅                 |
-| `/api/states/<entity_id>`             | GET          | ✅                 | ❌                 |
+| `/api/states/<entity_id>`             | GET          | ❌                 | ❌                 |
 | `/api/error_log`                      | GET          | ✅                 | ✅                 |
-| `/api/camera_proxy/<camera entity_id>`| GET          | ✅                 | ❌                 |
+| `/api/camera_proxy/<camera entity_id>`| GET          | ❌                 | ❌                 |
 | `/api/calendars`                      | GET          | ✅                 | ❌                 |
 | `/api/calendars/<calendar entity_id>` | GET          | ✅                 | ❌                 |
 | `/api/states/<entity_id>`             | POST         | ✅                 | ❌                 |
