@@ -1,7 +1,7 @@
 use std::vec;
 
-use chrono::{FixedOffset, NaiveDate, NaiveDateTime, NaiveTime};
-use homeassistant_rest_rs::Client;
+use chrono::{FixedOffset, NaiveDate, NaiveDateTime, NaiveTime, TimeZone};
+use homeassistant_rest_rs::{requests::HistoryParams, responses::StateEnum, Client};
 use mockito::{Mock, ServerGuard};
 
 fn create_mock_server(server: &mut ServerGuard, endpoint: &str) -> Mock {
@@ -224,6 +224,81 @@ async fn test_good_services_async() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[tokio::test]
+async fn test_good_history_period_async() -> Result<(), Box<dyn std::error::Error>> {
+    let mut server = mockito::Server::new();
+
+    let mock_server = create_mock_server(
+        &mut server,
+        "/api/history/period/2016-12-29T11:22:33+02:00?end_time=2016-12-30T10:11:22+02:00",
+    )
+    // .match_query(mockito::Matcher::AllOf(vec![mockito::Matcher::UrlEncoded(
+    //     "end_time".to_owned(),
+    //     "2016-12-30T10:11:22+02:00".to_owned(),
+    // )]))
+    .with_status(200)
+    .with_body(
+        r#"
+    [
+        [
+            {
+                "attributes": {
+                    "friendly_name": "Weather Temperature",
+                    "unit_of_measurement": "\u00b0C"
+                },
+                "entity_id": "sensor.weather_temperature",
+                "last_changed": "2016-02-06T22:15:00+00:00",
+                "last_updated": "2016-02-06T22:15:00+00:00",
+                "state": "-3.9"
+            },
+            {
+                "attributes": {
+                    "friendly_name": "Weather Temperature",
+                    "unit_of_measurement": "\u00b0C"
+                },
+                "entity_id": "sensor.weather_temperature",
+                "last_changed": "2016-02-06T22:15:00+00:00",
+                "last_updated": "2016-02-06T22:15:00+00:00",
+                "state": "-1.9"
+            }
+        ]
+    ]"#,
+    )
+    .create_async()
+    .await;
+
+    let start_time = FixedOffset::east_opt(2 * 3600)
+        .unwrap()
+        .with_ymd_and_hms(2016, 12, 29, 11, 22, 33)
+        .unwrap();
+
+    let end_time = FixedOffset::east_opt(2 * 3600)
+        .unwrap()
+        .with_ymd_and_hms(2016, 12, 30, 10, 11, 22)
+        .unwrap();
+
+    let client = Client::new(server.url().as_str(), "test_token")?;
+
+    let params = HistoryParams {
+        start_time: Some(start_time),
+        end_time: Some(end_time),
+        ..HistoryParams::default()
+    };
+    let history = client.get_history(params).await?;
+
+    assert_eq!(history.len(), 1);
+    assert_eq!(history[0].len(), 2);
+    assert_eq!(
+        history[0][0].entity_id,
+        Some("sensor.weather_temperature".to_owned())
+    );
+    assert_eq!(history[0][0].state, Some(StateEnum::Decimal(-3.9)));
+
+    mock_server.assert_async().await;
+
+    Ok(())
+}
+
+#[tokio::test]
 async fn test_good_states_async() -> Result<(), Box<dyn std::error::Error>> {
     let mut server = mockito::Server::new();
 
@@ -266,7 +341,10 @@ async fn test_good_states_async() -> Result<(), Box<dyn std::error::Error>> {
         .unwrap(),
         states[0].last_changed
     );
-    assert_eq!(states[0].state, "below_horizon");
+    assert_eq!(
+        states[0].state,
+        Some(StateEnum::String("below_horizon".to_owned()))
+    );
 
     assert!(states[1].attributes.is_empty());
     assert_eq!(states[1].entity_id, "process.Dropbox");
@@ -279,7 +357,7 @@ async fn test_good_states_async() -> Result<(), Box<dyn std::error::Error>> {
         .unwrap(),
         states[1].last_changed
     );
-    assert_eq!(states[1].state, "on");
+    assert_eq!(states[1].state, Some(StateEnum::String("on".to_owned())));
 
     mock_server.assert_async().await;
 

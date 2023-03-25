@@ -1,8 +1,34 @@
 use std::collections::HashMap;
 
-use crate::deserialize::{deserialize_date, deserialize_datetime, deserialize_optional_datetime};
+use crate::deserialize::{
+    deserialize_date, deserialize_datetime, deserialize_optional_datetime,
+    deserialize_optional_state_enum,
+};
 use chrono::{DateTime, FixedOffset, NaiveDate};
 use serde_derive::Deserialize;
+
+#[derive(Deserialize, Debug)]
+#[serde(untagged)]
+pub enum StateEnum {
+    Integer(i64),
+    Decimal(f64),
+    Boolean(bool),
+    String(String),
+}
+
+impl std::cmp::Eq for StateEnum {}
+
+impl std::cmp::PartialEq for StateEnum {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (StateEnum::Integer(x), StateEnum::Integer(y)) => *x == *y,
+            (StateEnum::Decimal(x), StateEnum::Decimal(y)) => *x == *y,
+            (StateEnum::Boolean(x), StateEnum::Boolean(y)) => *x == *y,
+            (StateEnum::String(x), StateEnum::String(y)) => *x == *y,
+            _ => false,
+        }
+    }
+}
 
 #[derive(Deserialize, Debug)]
 pub struct ApiStatus {
@@ -58,7 +84,9 @@ pub struct History {
     #[serde(default)]
     #[serde(deserialize_with = "deserialize_optional_datetime")]
     pub last_updated: Option<DateTime<FixedOffset>>,
-    pub state: String,
+
+    #[serde(deserialize_with = "deserialize_optional_state_enum")]
+    pub state: Option<StateEnum>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -85,7 +113,9 @@ pub struct State {
 
     #[serde(deserialize_with = "deserialize_datetime")]
     pub last_changed: DateTime<FixedOffset>,
-    pub state: String,
+
+    #[serde(deserialize_with = "deserialize_optional_state_enum")]
+    pub state: Option<StateEnum>,
 }
 
 #[derive(Deserialize, Debug)]
