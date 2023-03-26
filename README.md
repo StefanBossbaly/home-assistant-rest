@@ -61,6 +61,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 
-Inspiration, code snippets, etc.
-
+- [Home Assistant](https://www.home-assistant.io/)
 - [Home Assistant REST API](https://developers.home-assistant.io/docs/api/rest/)
