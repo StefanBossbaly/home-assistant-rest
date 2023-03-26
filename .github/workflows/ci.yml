@@ -1,0 +1,39 @@
+name: Rust CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: install
+        run: |
+          rustup update
+          rustup component add clippy
+          rustup install stable
+
+      - name: info
+        run: |
+          cargo --version --verbose
+          rustc --version
+          cargo clippy --version
+
+      - name: lint
+        run: |
+          cargo fmt -- --check
+          cargo clippy -- -D warnings
+
+      - name: test
+        run: |
+          cargo check
+          cargo test --all
+
+      - name: build
+        run: |
+          cargo build --release
