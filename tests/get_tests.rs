@@ -227,6 +227,7 @@ async fn test_good_services_async() -> Result<(), Box<dyn std::error::Error>> {
 async fn test_good_history_period_async() -> Result<(), Box<dyn std::error::Error>> {
     let mut server = mockito::Server::new();
 
+    // TODO: Figure out why match_query doesn't work
     let mock_server = create_mock_server(
         &mut server,
         "/api/history/period/2016-12-29T11:22:33+02:00?end_time=2016-12-30T10:11:22+02:00",

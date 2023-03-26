@@ -5,6 +5,7 @@ use chrono::{DateTime, FixedOffset};
 use serde::Serialize;
 use serde_derive::Serialize;
 
+#[derive(Debug)]
 pub struct GetRequest {
     pub endpoint: String,
     pub query: Vec<(String, String)>,
