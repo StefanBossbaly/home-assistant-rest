@@ -94,6 +94,7 @@ impl Client {
         Ok(request)
     }
 
+    #[allow(dead_code)]
     async fn get_binary_request(&self, endpoint: &str) -> Result<Bytes> {
         let request = self
             .build_get_request(endpoint)
