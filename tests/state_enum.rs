@@ -99,3 +99,9 @@ fn test_option_some() {
     let value: OptionTestStruct = serde_json::from_str(r#"{"state": "Hi Again"}"#).unwrap();
     assert_eq!(value.state, Some(StateEnum::String("Hi Again".to_owned())));
 }
+
+#[test]
+fn test_invalid_type() {
+    let value: Result<TestStruct, _> = serde_json::from_str(r#"{"state": [1, 2, 3]}"#);
+    assert!(value.is_err());
+}
