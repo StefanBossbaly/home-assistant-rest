@@ -72,7 +72,7 @@ pub struct Service {
 #[derive(Deserialize, Debug)]
 pub struct History {
     #[serde(default)]
-    pub attributes: Option<HashMap<String, String>>,
+    pub attributes: Option<HashMap<String, serde_json::Value>>,
 
     #[serde(default)]
     pub entity_id: Option<String>,
@@ -108,7 +108,7 @@ pub struct Logbook {
 
 #[derive(Deserialize, Debug)]
 pub struct State {
-    pub attributes: HashMap<String, String>,
+    pub attributes: HashMap<String, serde_json::Value>,
     pub entity_id: String,
 
     #[serde(deserialize_with = "deserialize_datetime")]
