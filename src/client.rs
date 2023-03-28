@@ -117,7 +117,7 @@ impl Client {
         Ok(request)
     }
 
-    async fn get_request_with_query<T: DeserializeOwned, Q: get::Requestable>(
+    async fn get_request_with_query<T: DeserializeOwned, Q: get::Parameters>(
         &self,
         queryable: Q,
     ) -> Result<T> {
@@ -133,38 +133,39 @@ impl Client {
         Ok(request)
     }
 
-    pub async fn get_api_status(&self) -> Result<get::ApiStatus> {
-        self.get_request::<get::ApiStatus>("/api/").await
+    pub async fn get_api_status(&self) -> Result<get::ApiStatusResponse> {
+        self.get_request::<get::ApiStatusResponse>("/api/").await
     }
 
-    pub async fn get_config(&self) -> Result<get::Config> {
-        self.get_request::<get::Config>("/api/config").await
+    pub async fn get_config(&self) -> Result<get::ConfigResponse> {
+        self.get_request::<get::ConfigResponse>("/api/config").await
     }
 
-    pub async fn get_events(&self) -> Result<Vec<get::Event>> {
-        self.get_request::<Vec<get::Event>>("/api/events").await
+    pub async fn get_events(&self) -> Result<get::EventsResponse> {
+        self.get_request::<get::EventsResponse>("/api/events").await
     }
 
-    pub async fn get_services(&self) -> Result<Vec<get::Service>> {
-        self.get_request::<Vec<get::Service>>("/api/services").await
-    }
-
-    pub async fn get_history(&self, args: get::HistoryParams) -> Result<Vec<Vec<get::History>>> {
-        self.get_request_with_query::<Vec<Vec<get::History>>, _>(args)
+    pub async fn get_services(&self) -> Result<get::ServicesResponse> {
+        self.get_request::<get::ServicesResponse>("/api/services")
             .await
     }
 
-    pub async fn get_logbook(&self, args: get::LogbookParams) -> Result<Vec<get::Logbook>> {
-        self.get_request_with_query::<Vec<get::Logbook>, _>(args)
+    pub async fn get_history(&self, params: get::HistoryParams) -> Result<get::HistoryResponse> {
+        self.get_request_with_query::<get::HistoryResponse, _>(params)
             .await
     }
 
-    pub async fn get_states(&self) -> Result<Vec<get::State>> {
-        self.get_request::<Vec<get::State>>("/api/states").await
+    pub async fn get_logbook(&self, params: get::LogbookParams) -> Result<get::LogbookResponse> {
+        self.get_request_with_query::<get::LogbookResponse, _>(params)
+            .await
     }
 
-    pub async fn get_state(&self, entity_id: &str) -> Result<get::StateEntity> {
-        self.get_request::<get::StateEntity>(&format!("/api/state/{}", entity_id))
+    pub async fn get_states(&self) -> Result<get::StatesResponse> {
+        self.get_request::<get::StatesResponse>("/api/states").await
+    }
+
+    pub async fn get_state(&self, entity_id: &str) -> Result<get::StatesEntityResponse> {
+        self.get_request::<get::StatesEntityResponse>(&format!("/api/state/{}", entity_id))
             .await
     }
 
@@ -176,15 +177,15 @@ impl Client {
         unimplemented!()
     }
 
-    pub async fn get_calendars(&self) -> Result<Vec<get::Calendar>> {
+    pub async fn get_calendars(&self) -> Result<get::CalendarsResponse> {
         self.get_request("/api/calendars").await
     }
 
     pub async fn get_calendars_of_entity(
         &self,
-        params: get::CalendarParams,
-    ) -> Result<Vec<get::CalendarEvent>> {
-        self.get_request_with_query::<Vec<get::CalendarEvent>, _>(params)
+        params: get::CalendarsParams,
+    ) -> Result<get::CalendarsEntityResponse> {
+        self.get_request_with_query::<get::CalendarsEntityResponse, _>(params)
             .await
     }
 
