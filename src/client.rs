@@ -164,8 +164,8 @@ impl Client {
         self.get_request::<get::StatesResponse>("/api/states").await
     }
 
-    pub async fn get_state(&self, entity_id: &str) -> Result<get::StatesEntityResponse> {
-        self.get_request::<get::StatesEntityResponse>(&format!("/api/state/{}", entity_id))
+    pub async fn get_states_of_entity(&self, entity_id: &str) -> Result<get::StatesEntityResponse> {
+        self.get_request::<get::StatesEntityResponse>(&format!("/api/states/{}", entity_id))
             .await
     }
 

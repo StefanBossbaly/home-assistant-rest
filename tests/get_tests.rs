@@ -371,7 +371,7 @@ async fn test_good_states_async() -> Result<(), Box<dyn std::error::Error>> {
 #[tokio::test]
 async fn test_good_state_async() -> Result<(), Box<dyn std::error::Error>> {
     let mut server = mockito::Server::new();
-    let mock_server = create_mock_server(&mut server, "/api/state/sun.sun")
+    let mock_server = create_mock_server(&mut server, "/api/states/sun.sun")
         .with_body(
             r#"
         {
@@ -392,7 +392,7 @@ async fn test_good_state_async() -> Result<(), Box<dyn std::error::Error>> {
         .await;
 
     let client = Client::new(server.url().as_str(), "test_token")?;
-    let state = client.get_state("sun.sun").await?;
+    let state = client.get_states_of_entity("sun.sun").await?;
 
     let timezone = FixedOffset::east_opt(0).unwrap();
 
