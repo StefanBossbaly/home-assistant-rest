@@ -48,19 +48,21 @@ impl Client {
         let mut url = self.url.clone();
         url.set_path(&query_params.endpoint);
 
-        let mut query_string = String::new();
-        let mut first_time = true;
+        if !query_params.query.is_empty() {
+            let mut query_string = String::new();
+            let mut first_time = true;
 
-        for (key, value) in query_params.query {
-            if first_time {
-                query_string.push_str(format!("{}={}", key, value).as_str());
-            } else {
-                query_string.push_str(format!("&{}={}", key, value).as_str());
+            for (key, value) in query_params.query {
+                if first_time {
+                    query_string.push_str(format!("{}={}", key, value).as_str());
+                } else {
+                    query_string.push_str(format!("&{}={}", key, value).as_str());
+                }
+                first_time = false;
             }
-            first_time = false;
-        }
 
-        url.set_query(Some(&query_string));
+            url.set_query(Some(&query_string));
+        }
 
         reqwest::Client::new()
             .get(url)

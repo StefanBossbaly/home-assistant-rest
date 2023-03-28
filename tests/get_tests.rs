@@ -303,6 +303,133 @@ async fn test_good_history_period_async() -> Result<(), Box<dyn std::error::Erro
 }
 
 #[tokio::test]
+async fn test_good_logbook_async() -> Result<(), Box<dyn std::error::Error>> {
+    let mut server = mockito::Server::new();
+
+    // TODO: Figure out why match_query doesn't work
+    let mock_server = create_mock_server(&mut server, "/api/logbook/2023-03-27T23:42:00+00:00")
+        .with_status(200)
+        .with_body(
+            r#"
+        [
+            {
+                "context_user_id": null,
+                "domain": "alarm_control_panel",
+                "entity_id": "alarm_control_panel.area_001",
+                "message": "changed to disarmed",
+                "name": "Security",
+                "when": "2020-06-20T16:44:26.127295+00:00"
+            },
+            {
+                "context_user_id": null,
+                "domain": "homekit",
+                "entity_id": "alarm_control_panel.area_001",
+                "message": "send command alarm_arm_night for Security",
+                "name": "HomeKit",
+                "when": "2020-06-21T02:59:05.759645+00:00"
+            },
+            {
+                "context_user_id": null,
+                "domain": "alarm_control_panel",
+                "entity_id": "alarm_control_panel.area_001",
+                "message": "changed to armed_night",
+                "name": "Security",
+                "when": "2020-06-21T02:59:06.015463+00:00"
+            }
+        ]"#,
+        )
+        .create_async()
+        .await;
+
+    let start_time = FixedOffset::east_opt(0)
+        .unwrap()
+        .with_ymd_and_hms(2023, 3, 27, 23, 42, 00)
+        .unwrap();
+
+    let client = Client::new(server.url().as_str(), "test_token")?;
+    let params = get::LogbookParams {
+        start_time: Some(start_time),
+        ..get::LogbookParams::default()
+    };
+    let logbook = client.get_logbook(params).await?;
+
+    let timezone = FixedOffset::east_opt(0).unwrap();
+
+    // Ensure we have 3 logbook entries
+    assert_eq!(logbook.len(), 3);
+
+    // First Logbook Entry
+    assert_eq!(logbook[0].domain, Some("alarm_control_panel".to_owned()));
+    assert_eq!(
+        logbook[0].entity_id,
+        "alarm_control_panel.area_001".to_owned()
+    );
+    assert_eq!(logbook[0].message, Some("changed to disarmed".to_owned()));
+    assert_eq!(logbook[0].name, Some("Security".to_owned()));
+    assert_eq!(
+        logbook[0].when,
+        Some(
+            NaiveDateTime::new(
+                NaiveDate::from_ymd_opt(2020, 6, 20).unwrap(),
+                NaiveTime::from_hms_nano_opt(16, 44, 26, 127_295_000).unwrap()
+            )
+            .and_local_timezone(timezone)
+            .unwrap()
+        )
+    );
+
+    // Second Logbook Entry
+    assert_eq!(logbook[1].domain, Some("homekit".to_owned()));
+    assert_eq!(
+        logbook[1].entity_id,
+        "alarm_control_panel.area_001".to_owned()
+    );
+    assert_eq!(
+        logbook[1].message,
+        Some("send command alarm_arm_night for Security".to_owned())
+    );
+    assert_eq!(logbook[1].name, Some("HomeKit".to_owned()));
+    assert_eq!(
+        logbook[1].when,
+        Some(
+            NaiveDateTime::new(
+                NaiveDate::from_ymd_opt(2020, 6, 21).unwrap(),
+                NaiveTime::from_hms_nano_opt(2, 59, 5, 759_645_000).unwrap()
+            )
+            .and_local_timezone(timezone)
+            .unwrap()
+        )
+    );
+
+    // Third Logbook Entry
+    assert_eq!(logbook[2].domain, Some("alarm_control_panel".to_owned()));
+    assert_eq!(
+        logbook[2].entity_id,
+        "alarm_control_panel.area_001".to_owned()
+    );
+    assert_eq!(
+        logbook[2].message,
+        Some("changed to armed_night".to_owned())
+    );
+    assert_eq!(logbook[2].name, Some("Security".to_owned()));
+    assert_eq!(
+        logbook[2].when,
+        Some(
+            NaiveDateTime::new(
+                NaiveDate::from_ymd_opt(2020, 6, 21).unwrap(),
+                NaiveTime::from_hms_nano_opt(2, 59, 6, 15_463_000).unwrap()
+            )
+            .and_local_timezone(timezone)
+            .unwrap()
+        )
+    );
+
+    mock_server.assert_async().await;
+
+    Ok(())
+}
+
+#[tokio::test]
 async fn test_good_states_async() -> Result<(), Box<dyn std::error::Error>> {
     let mut server = mockito::Server::new();
 
