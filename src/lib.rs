@@ -1,7 +1,7 @@
 mod client;
 pub mod deserialize;
-pub mod requests;
-pub mod responses;
+pub mod get;
+pub mod post;
 pub mod serialize;
 
 pub use client::Client;

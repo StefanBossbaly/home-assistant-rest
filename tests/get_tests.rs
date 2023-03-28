@@ -1,7 +1,10 @@
 use std::vec;
 
 use chrono::{FixedOffset, NaiveDate, NaiveDateTime, NaiveTime, TimeZone};
-use homeassistant_rest_rs::{requests::HistoryParams, responses::StateEnum, Client};
+use homeassistant_rest_rs::{
+    get::{self, StateEnum},
+    Client,
+};
 use mockito::{Mock, ServerGuard};
 
 fn create_mock_server(server: &mut ServerGuard, endpoint: &str) -> Mock {
@@ -279,10 +282,10 @@ async fn test_good_history_period_async() -> Result<(), Box<dyn std::error::Erro
 
     let client = Client::new(server.url().as_str(), "test_token")?;
 
-    let params = HistoryParams {
+    let params = get::HistoryParams {
         start_time: Some(start_time),
         end_time: Some(end_time),
-        ..HistoryParams::default()
+        ..get::HistoryParams::default()
     };
     let history = client.get_history(params).await?;
 
@@ -292,7 +295,7 @@ async fn test_good_history_period_async() -> Result<(), Box<dyn std::error::Erro
         history[0][0].entity_id,
         Some("sensor.weather_temperature".to_owned())
     );
-    assert_eq!(history[0][0].state, Some(StateEnum::Decimal(-3.9)));
+    assert_eq!(history[0][0].state, Some(get::StateEnum::Decimal(-3.9)));
 
     mock_server.assert_async().await;
 
@@ -359,6 +362,67 @@ async fn test_good_states_async() -> Result<(), Box<dyn std::error::Error>> {
         states[1].last_changed
     );
     assert_eq!(states[1].state, Some(StateEnum::String("on".to_owned())));
+
+    mock_server.assert_async().await;
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_good_state_async() -> Result<(), Box<dyn std::error::Error>> {
+    let mut server = mockito::Server::new();
+    let mock_server = create_mock_server(&mut server, "/api/state/sun.sun")
+        .with_body(
+            r#"
+        {
+            "attributes":{
+                "azimuth":336.34,
+                "elevation":-17.67,
+                "friendly_name":"Sun",
+                "next_rising":"2016-05-31T03:39:14+00:00",
+                "next_setting":"2016-05-31T19:16:42+00:00"
+            },
+            "entity_id":"sun.sun",
+            "last_changed":"2016-05-30T21:43:29.204838+00:00",
+            "last_updated":"2016-05-30T21:50:30.529465+00:00",
+            "state":"below_horizon"
+        }"#,
+        )
+        .create_async()
+        .await;
+
+    let client = Client::new(server.url().as_str(), "test_token")?;
+    let state = client.get_state("sun.sun").await?;
+
+    let timezone = FixedOffset::east_opt(0).unwrap();
+
+    assert_eq!(state.attributes["azimuth"], 336.34);
+    assert_eq!(state.attributes["elevation"], -17.67);
+    assert_eq!(state.attributes["friendly_name"], "Sun");
+    assert_eq!(state.attributes["next_rising"], "2016-05-31T03:39:14+00:00");
+    assert_eq!(
+        state.attributes["next_setting"],
+        "2016-05-31T19:16:42+00:00"
+    );
+    assert_eq!(state.entity_id, "sun.sun");
+    assert_eq!(
+        NaiveDateTime::new(
+            NaiveDate::from_ymd_opt(2016, 5, 30).unwrap(),
+            NaiveTime::from_hms_nano_opt(21, 43, 29, 204_838_000).unwrap()
+        )
+        .and_local_timezone(timezone)
+        .unwrap(),
+        state.last_changed
+    );
+    assert_eq!(
+        NaiveDateTime::new(
+            NaiveDate::from_ymd_opt(2016, 5, 30).unwrap(),
+            NaiveTime::from_hms_nano_opt(21, 50, 30, 529_465_000).unwrap()
+        )
+        .and_local_timezone(timezone)
+        .unwrap(),
+        state.last_updated
+    );
 
     mock_server.assert_async().await;
 

@@ -3,7 +3,7 @@ use std::fmt;
 use chrono::{DateTime, FixedOffset, NaiveDate};
 use serde::de;
 
-use crate::responses::StateEnum;
+use crate::get::StateEnum;
 
 const DATE_FORMAT: &str = "%Y-%m-%d";
 

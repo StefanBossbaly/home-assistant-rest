@@ -1,6 +1,6 @@
 use homeassistant_rest_rs::{
     deserialize::{deserialize_optional_state_enum, deserialize_state_enum},
-    responses::StateEnum,
+    get::StateEnum,
 };
 use serde_derive::Deserialize;
 

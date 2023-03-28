@@ -4,12 +4,9 @@ use serde::de::DeserializeOwned;
 use serde::Serialize;
 use url::Url;
 
-use crate::requests::{
-    CalendarParams, GetRequest, GetRequestable, HistoryParams, LogbookParams, PostRequest,
-    PostRequestable, StateParams, TemplateParams,
-};
-use crate::responses::{
-    ApiStatus, Calendar, CalendarEvent, Config, Event, History, Logbook, Service, State,
+use crate::{
+    get,
+    post::{self, Requestable},
 };
 
 pub struct Client {
@@ -47,7 +44,7 @@ impl Client {
             .header(reqwest::header::CONTENT_TYPE, "application/json")
     }
 
-    fn build_get_request_with_query(&self, query_params: GetRequest) -> RequestBuilder {
+    fn build_get_request_with_query(&self, query_params: get::Request) -> RequestBuilder {
         let mut url = self.url.clone();
         url.set_path(&query_params.endpoint);
 
@@ -71,7 +68,10 @@ impl Client {
             .header(reqwest::header::CONTENT_TYPE, "application/json")
     }
 
-    async fn post_text_request<S: Serialize>(&self, post_param: PostRequest<S>) -> Result<String> {
+    async fn post_text_request<S: Serialize>(
+        &self,
+        post_param: post::Request<S>,
+    ) -> Result<String> {
         let request = self
             .build_put_request(&post_param.endpoint)
             .json(&post_param.body)
@@ -117,11 +117,11 @@ impl Client {
         Ok(request)
     }
 
-    async fn get_request_with_query<T: DeserializeOwned, Q: GetRequestable>(
+    async fn get_request_with_query<T: DeserializeOwned, Q: get::Requestable>(
         &self,
         queryable: Q,
     ) -> Result<T> {
-        let query_params = queryable.into_get_request()?;
+        let query_params = queryable.into_request()?;
 
         let request = self
             .build_get_request_with_query(query_params)
@@ -133,33 +133,39 @@ impl Client {
         Ok(request)
     }
 
-    pub async fn get_api_status(&self) -> Result<ApiStatus> {
-        self.get_request::<ApiStatus>("/api/").await
+    pub async fn get_api_status(&self) -> Result<get::ApiStatus> {
+        self.get_request::<get::ApiStatus>("/api/").await
     }
 
-    pub async fn get_config(&self) -> Result<Config> {
-        self.get_request::<Config>("/api/config").await
+    pub async fn get_config(&self) -> Result<get::Config> {
+        self.get_request::<get::Config>("/api/config").await
     }
 
-    pub async fn get_events(&self) -> Result<Vec<Event>> {
-        self.get_request::<Vec<Event>>("/api/events").await
+    pub async fn get_events(&self) -> Result<Vec<get::Event>> {
+        self.get_request::<Vec<get::Event>>("/api/events").await
     }
 
-    pub async fn get_services(&self) -> Result<Vec<Service>> {
-        self.get_request::<Vec<Service>>("/api/services").await
+    pub async fn get_services(&self) -> Result<Vec<get::Service>> {
+        self.get_request::<Vec<get::Service>>("/api/services").await
     }
 
-    pub async fn get_history(&self, args: HistoryParams) -> Result<Vec<Vec<History>>> {
-        self.get_request_with_query::<Vec<Vec<History>>, _>(args)
+    pub async fn get_history(&self, args: get::HistoryParams) -> Result<Vec<Vec<get::History>>> {
+        self.get_request_with_query::<Vec<Vec<get::History>>, _>(args)
             .await
     }
 
-    pub async fn get_logbook(&self, args: LogbookParams) -> Result<Vec<Logbook>> {
-        self.get_request_with_query::<Vec<Logbook>, _>(args).await
+    pub async fn get_logbook(&self, args: get::LogbookParams) -> Result<Vec<get::Logbook>> {
+        self.get_request_with_query::<Vec<get::Logbook>, _>(args)
+            .await
     }
 
-    pub async fn get_states(&self) -> Result<Vec<State>> {
-        self.get_request::<Vec<State>>("/api/states").await
+    pub async fn get_states(&self) -> Result<Vec<get::State>> {
+        self.get_request::<Vec<get::State>>("/api/states").await
+    }
+
+    pub async fn get_state(&self, entity_id: &str) -> Result<get::StateEntity> {
+        self.get_request::<get::StateEntity>(&format!("/api/state/{}", entity_id))
+            .await
     }
 
     pub async fn get_error_log(&self) -> Result<String> {
@@ -170,28 +176,28 @@ impl Client {
         unimplemented!()
     }
 
-    pub async fn get_calendars(&self) -> Result<Vec<Calendar>> {
+    pub async fn get_calendars(&self) -> Result<Vec<get::Calendar>> {
         self.get_request("/api/calendars").await
     }
 
     pub async fn get_calendars_of_entity(
         &self,
-        params: CalendarParams,
-    ) -> Result<Vec<CalendarEvent>> {
-        self.get_request_with_query::<Vec<CalendarEvent>, _>(params)
+        params: get::CalendarParams,
+    ) -> Result<Vec<get::CalendarEvent>> {
+        self.get_request_with_query::<Vec<get::CalendarEvent>, _>(params)
             .await
     }
 
-    pub async fn post_states(&self, params: StateParams) -> Result<String> {
-        self.post_text_request(params.into_post_request()?).await
+    pub async fn post_states(&self, params: post::StateParams) -> Result<String> {
+        self.post_text_request(params.into_request()?).await
     }
 
     pub async fn post_events(&self) -> Result<()> {
         unimplemented!()
     }
 
-    pub async fn post_template(&self, params: TemplateParams) -> Result<String> {
-        self.post_text_request(params.into_post_request()?).await
+    pub async fn post_template(&self, params: post::TemplateParams) -> Result<String> {
+        self.post_text_request(params.into_request()?).await
     }
 
     pub async fn post_config_check(&self) -> Result<()> {
