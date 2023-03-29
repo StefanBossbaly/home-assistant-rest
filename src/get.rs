@@ -227,6 +227,7 @@ pub struct StatesEntityResponse {
     pub state: Option<StateEnum>,
 }
 
+#[derive(Default)]
 pub struct CalendarsParams {
     pub entity_id: String,
     pub start_time: DateTime<FixedOffset>,
@@ -267,10 +268,22 @@ pub enum DateVariant {
         rename(deserialize = "dateTime"),
         deserialize_with = "deserialize_datetime"
     )]
-    DataTime(DateTime<FixedOffset>),
+    DateTime(DateTime<FixedOffset>),
 
     #[serde(rename(deserialize = "date"), deserialize_with = "deserialize_date")]
     Date(NaiveDate),
+}
+
+impl std::cmp::Eq for DateVariant {}
+
+impl std::cmp::PartialEq for DateVariant {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (DateVariant::DateTime(x), DateVariant::DateTime(y)) => *x == *y,
+            (DateVariant::Date(x), DateVariant::Date(y)) => *x == *y,
+            _ => false,
+        }
+    }
 }
 
 pub type CalendarsEntityResponse = Vec<CalendarsEntityEntry>;

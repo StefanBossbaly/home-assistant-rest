@@ -2,7 +2,7 @@ use std::vec;
 
 use chrono::{FixedOffset, NaiveDate, NaiveDateTime, NaiveTime, TimeZone};
 use homeassistant_rest_rs::{
-    get::{self, StateEnum},
+    get::{self, CalendarsParams, DateVariant, StateEnum},
     Client,
 };
 use mockito::{Mock, ServerGuard};
@@ -614,6 +614,117 @@ async fn test_good_calendars_async() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(calendards[0].name, "National Holidays");
     assert_eq!(calendards[1].entity_id, "calendar.personal");
     assert_eq!(calendards[1].name, "Personal Calendar");
+
+    mock_server.assert_async().await;
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_good_calendars_entity_async() -> Result<(), Box<dyn std::error::Error>> {
+    let mut server = mockito::Server::new();
+
+    // TODO: Figure out why match_query doesn't work
+    let mock_server = create_mock_server(&mut server, "/api/calendars/calendar.holidays?start=2022-05-01T07:00:00.000Z&end=2022-06-12T07:00:00.000Z")
+        .with_body(
+            r#"
+        [
+            {
+                "summary": "Cinco de Mayo",
+                "start": {
+                    "date": "2022-05-05"
+                },
+                "end": {
+                    "date": "2022-05-06"
+                }
+            },
+            {
+                "summary": "Birthday Party",
+                "start": {
+                    "dateTime": "2022-05-06T20:00:00-07:00"
+                },
+                "end": {
+                    "dateTime": "2022-05-06T23:00:00-07:00"
+                },
+                "description": "Don't forget to bring balloons",
+                "location": "Brian's House"
+            }
+            ]"#,
+        )
+        .create_async()
+        .await;
+
+    let client = Client::new(server.url().as_str(), "test_token")?;
+
+    let request_timezone = FixedOffset::east_opt(0).unwrap();
+
+    let calendar_params = CalendarsParams {
+        entity_id: "calendar.holidays".to_owned(),
+
+        start_time: NaiveDateTime::new(
+            NaiveDate::from_ymd_opt(2022, 5, 1).unwrap(),
+            NaiveTime::from_hms_opt(7, 0, 0).unwrap(),
+        )
+        .and_local_timezone(request_timezone)
+        .unwrap(),
+
+        end_time: NaiveDateTime::new(
+            NaiveDate::from_ymd_opt(2022, 6, 12).unwrap(),
+            NaiveTime::from_hms_opt(7, 0, 0).unwrap(),
+        )
+        .and_local_timezone(request_timezone)
+        .unwrap(),
+    };
+    let calendar_entries = client.get_calendars_of_entity(calendar_params).await?;
+
+    assert_eq!(calendar_entries.len(), 2);
+
+    // Check the first calendar entry
+    assert_eq!(calendar_entries[0].summary, "Cinco de Mayo");
+    assert_eq!(
+        calendar_entries[0].start,
+        DateVariant::Date(NaiveDate::from_ymd_opt(2022, 5, 5).unwrap())
+    );
+    assert_eq!(
+        calendar_entries[0].end,
+        DateVariant::Date(NaiveDate::from_ymd_opt(2022, 5, 6).unwrap())
+    );
+    assert_eq!(calendar_entries[0].description, None);
+    assert_eq!(calendar_entries[0].location, None);
+
+    // Check the second calendar entry
+    let timezone = FixedOffset::west_opt(7 * 60 * 60).unwrap();
+    assert_eq!(calendar_entries[1].summary, "Birthday Party");
+    assert_eq!(
+        calendar_entries[1].start,
+        DateVariant::DateTime(
+            NaiveDateTime::new(
+                NaiveDate::from_ymd_opt(2022, 5, 6).unwrap(),
+                NaiveTime::from_hms_opt(20, 0, 0).unwrap()
+            )
+            .and_local_timezone(timezone)
+            .unwrap(),
+        )
+    );
+    assert_eq!(
+        calendar_entries[1].end,
+        DateVariant::DateTime(
+            NaiveDateTime::new(
+                NaiveDate::from_ymd_opt(2022, 5, 6).unwrap(),
+                NaiveTime::from_hms_opt(23, 0, 0).unwrap()
+            )
+            .and_local_timezone(timezone)
+            .unwrap(),
+        )
+    );
+    assert_eq!(
+        calendar_entries[1].description,
+        Some("Don't forget to bring balloons".to_owned())
+    );
+    assert_eq!(
+        calendar_entries[1].location,
+        Some("Brian's House".to_owned())
+    );
 
     mock_server.assert_async().await;
 
