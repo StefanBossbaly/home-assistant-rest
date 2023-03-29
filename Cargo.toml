@@ -1,10 +1,10 @@
 [package]
-name = "homeassistant-rest-rs"
+name = "hass-rest-rs"
 version = "0.1.0"
 edition = "2021"
-description = "Homeassistant REST API client"
+description = "Home Assistant Async REST API Client"
 readme = "README.md"
-repository = "https://github.com/StefanBossbaly/homeassistant-rest-rs/"
+repository = "https://github.com/StefanBossbaly/hass-rest-rs/"
 authors = ["Stefan Bossbaly <sbossb@gmail.com>"]
 license = "MIT"
 
