@@ -17,7 +17,7 @@ and the API might change at any time.
 | `/api/config`                          | GET          | ✅          | ✅     |
 | `/api/events`                          | GET          | ✅          | ✅     |
 | `/api/services`                        | GET          | ✅          | ✅     |
-| `/api/history/period/<timestamp>`      | GET          | ✅          | ❌     |
+| `/api/history/period/<timestamp>`      | GET          | ✅          | ✅     |
 | `/api/logbook/<timestamp>`             | GET          | ✅          | ✅     |
 | `/api/states`                          | GET          | ✅          | ✅     |
 | `/api/states/<entity_id>`              | GET          | ✅          | ✅     |
