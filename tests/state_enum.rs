@@ -1,4 +1,4 @@
-use homeassistant_rest_rs::{
+use home_assistant_rest::{
     deserialize::{deserialize_optional_state_enum, deserialize_state_enum},
     get::StateEnum,
 };

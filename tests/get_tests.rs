@@ -1,7 +1,7 @@
 use std::vec;
 
 use chrono::{FixedOffset, NaiveDate, NaiveDateTime, NaiveTime, TimeZone};
-use homeassistant_rest_rs::{
+use home_assistant_rest::{
     get::{self, CalendarsParams, DateVariant, StateEnum},
     Client,
 };
