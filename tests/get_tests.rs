@@ -361,8 +361,8 @@ async fn test_good_logbook_async() -> Result<(), Box<dyn std::error::Error>> {
     // First Logbook Entry
     assert_eq!(logbook[0].domain, Some("alarm_control_panel".to_owned()));
     assert_eq!(
-        logbook[0].entity_id,
-        "alarm_control_panel.area_001".to_owned()
+        logbook[0].entity_id.as_deref(),
+        Some("alarm_control_panel.area_001"),
     );
     assert_eq!(logbook[0].message, Some("changed to disarmed".to_owned()));
     assert_eq!(logbook[0].name, Some("Security".to_owned()));
@@ -381,8 +381,8 @@ async fn test_good_logbook_async() -> Result<(), Box<dyn std::error::Error>> {
     // Second Logbook Entry
     assert_eq!(logbook[1].domain, Some("homekit".to_owned()));
     assert_eq!(
-        logbook[1].entity_id,
-        "alarm_control_panel.area_001".to_owned()
+        logbook[1].entity_id.as_deref(),
+        Some("alarm_control_panel.area_001")
     );
     assert_eq!(
         logbook[1].message,
@@ -404,8 +404,8 @@ async fn test_good_logbook_async() -> Result<(), Box<dyn std::error::Error>> {
     // Third Logbook Entry
     assert_eq!(logbook[2].domain, Some("alarm_control_panel".to_owned()));
     assert_eq!(
-        logbook[2].entity_id,
-        "alarm_control_panel.area_001".to_owned()
+        logbook[2].entity_id.as_deref(),
+        Some("alarm_control_panel.area_001")
     );
     assert_eq!(
         logbook[2].message,
