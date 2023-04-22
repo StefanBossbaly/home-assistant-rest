@@ -1,13 +1,44 @@
-# Project Title
-
-Home Assistant REST API Async Rust client.
-
-## Project Description
+# Home Assistant REST ![crates.io](https://img.shields.io/crates/v/home-assistant-rest.svg) [![](https://docs.rs/home-assistant-rest/badge.svg)](https://docs.rs/home-assistant-rest)
 
 This project provides developers with a standard and ergonomic Rust API for calling the various endpoints in
 Home Assistant's REST API. It handles the serialization and deserialization of the requests and responses
 and allows the developer to use the provided structures. Currently this project is still under active development
 and the API might change at any time.
+
+## Example Usage
+
+```rust
+use home_assistant_rest::{get::StateEnum, Client};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let base_url = "REPLACE_WITH_HASS_BASE_URL";
+    let token = "REPLACE_WITH_ACCESS_TOKEN";
+
+    let client = Client::new(base_url, token)?;
+    let api_status = client.get_api_status().await?;
+
+    if api_status.message != "API running." {
+        println!("API is NOT running");
+    } else {
+        println!("API is running, getting status of \"sun.sun\" entity");
+        let state_entity = client.get_states_of_entity("sun.sun").await?;
+
+        if let Some(state) = state_entity.state {
+            match state {
+                StateEnum::Boolean(x) => println!("Value is boolean with value {}", x),
+                StateEnum::Decimal(x) => println!("Value is decimal with value {}", x),
+                StateEnum::Integer(x) => println!("Value is integer with value {}", x),
+                StateEnum::String(x) => println!("Value is string with value \"{}\"", x),
+            }
+        } else {
+            println!("Value was not provided");
+        }
+    }
+
+    Ok(())
+}
+```
 
 ## API Status
 
@@ -31,17 +62,6 @@ and the API might change at any time.
 | `/api/template`                        | POST         | ✅          | ❌     |
 | `/api/config/core/check_config`        | POST         | ❌          | ❌     |
 | `/api/intent/handle`                   | POST         | ❌          | ❌     |
-
-## Example
-
-```rust
-let base_url = "http://192.168.1.2:8123";
-let token = "sdfef...";
-
-let client = Client::new(base_url, token)?;
-let api_status = client.api_status().await?;
-dbg!(api_status);
-```
 
 ## Differences between the specification and implementation
 
