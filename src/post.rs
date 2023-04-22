@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use serde::Serialize;
-use serde_derive::Serialize;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 

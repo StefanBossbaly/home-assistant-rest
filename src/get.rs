@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use chrono::{DateTime, FixedOffset, NaiveDate};
-use serde_derive::Deserialize;
+use serde::Deserialize;
 
 use crate::deserialize::{
     deserialize_date, deserialize_datetime, deserialize_optional_datetime,
