@@ -292,8 +292,8 @@ async fn test_good_history_period_async() -> Result<(), Box<dyn std::error::Erro
     assert_eq!(history.len(), 1);
     assert_eq!(history[0].len(), 2);
     assert_eq!(
-        history[0][0].entity_id,
-        Some("sensor.weather_temperature".to_owned())
+        history[0][0].entity_id.as_deref(),
+        Some("sensor.weather_temperature")
     );
     assert_eq!(history[0][0].state, Some(get::StateEnum::Decimal(-3.9)));
 
@@ -359,13 +359,13 @@ async fn test_good_logbook_async() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(logbook.len(), 3);
 
     // First Logbook Entry
-    assert_eq!(logbook[0].domain, Some("alarm_control_panel".to_owned()));
+    assert_eq!(logbook[0].domain.as_deref(), Some("alarm_control_panel"));
     assert_eq!(
-        logbook[0].entity_id,
-        "alarm_control_panel.area_001".to_owned()
+        logbook[0].entity_id.as_deref(),
+        Some("alarm_control_panel.area_001"),
     );
-    assert_eq!(logbook[0].message, Some("changed to disarmed".to_owned()));
-    assert_eq!(logbook[0].name, Some("Security".to_owned()));
+    assert_eq!(logbook[0].message.as_deref(), Some("changed to disarmed"));
+    assert_eq!(logbook[0].name.as_deref(), Some("Security"));
     assert_eq!(
         logbook[0].when,
         Some(
@@ -379,16 +379,16 @@ async fn test_good_logbook_async() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     // Second Logbook Entry
-    assert_eq!(logbook[1].domain, Some("homekit".to_owned()));
+    assert_eq!(logbook[1].domain.as_deref(), Some("homekit"));
     assert_eq!(
-        logbook[1].entity_id,
-        "alarm_control_panel.area_001".to_owned()
+        logbook[1].entity_id.as_deref(),
+        Some("alarm_control_panel.area_001")
     );
     assert_eq!(
-        logbook[1].message,
-        Some("send command alarm_arm_night for Security".to_owned())
+        logbook[1].message.as_deref(),
+        Some("send command alarm_arm_night for Security")
     );
-    assert_eq!(logbook[1].name, Some("HomeKit".to_owned()));
+    assert_eq!(logbook[1].name.as_deref(), Some("HomeKit"));
     assert_eq!(
         logbook[1].when,
         Some(
@@ -402,16 +402,16 @@ async fn test_good_logbook_async() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     // Third Logbook Entry
-    assert_eq!(logbook[2].domain, Some("alarm_control_panel".to_owned()));
+    assert_eq!(logbook[2].domain.as_deref(), Some("alarm_control_panel"));
     assert_eq!(
-        logbook[2].entity_id,
-        "alarm_control_panel.area_001".to_owned()
+        logbook[2].entity_id.as_deref(),
+        Some("alarm_control_panel.area_001")
     );
     assert_eq!(
-        logbook[2].message,
-        Some("changed to armed_night".to_owned())
+        logbook[2].message.as_deref(),
+        Some("changed to armed_night")
     );
-    assert_eq!(logbook[2].name, Some("Security".to_owned()));
+    assert_eq!(logbook[2].name.as_deref(), Some("Security"));
     assert_eq!(
         logbook[2].when,
         Some(
@@ -718,12 +718,12 @@ async fn test_good_calendars_entity_async() -> Result<(), Box<dyn std::error::Er
         )
     );
     assert_eq!(
-        calendar_entries[1].description,
-        Some("Don't forget to bring balloons".to_owned())
+        calendar_entries[1].description.as_deref(),
+        Some("Don't forget to bring balloons")
     );
     assert_eq!(
-        calendar_entries[1].location,
-        Some("Brian's House".to_owned())
+        calendar_entries[1].location.as_deref(),
+        Some("Brian's House")
     );
 
     mock_server.assert_async().await;

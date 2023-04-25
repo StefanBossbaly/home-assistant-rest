@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use chrono::{DateTime, FixedOffset, NaiveDate};
-use serde_derive::Deserialize;
+use serde::Deserialize;
 
 use crate::deserialize::{
     deserialize_date, deserialize_datetime, deserialize_optional_datetime,
@@ -185,7 +185,8 @@ pub type LogbookResponse = Vec<LogbookEntry>;
 pub struct LogbookEntry {
     #[serde(default)]
     pub domain: Option<String>,
-    pub entity_id: String,
+    #[serde(default)]
+    pub entity_id: Option<String>,
 
     #[serde(default)]
     pub message: Option<String>,

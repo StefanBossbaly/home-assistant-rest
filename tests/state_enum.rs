@@ -2,7 +2,7 @@ use home_assistant_rest::{
     deserialize::{deserialize_optional_state_enum, deserialize_state_enum},
     get::StateEnum,
 };
-use serde_derive::Deserialize;
+use serde::Deserialize;
 
 #[derive(Deserialize, Debug)]
 struct TestStruct {
