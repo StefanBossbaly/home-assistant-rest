@@ -9,6 +9,7 @@
 //! ```rust,no_run
 //! use home_assistant_rest::{get::StateEnum, Client};
 //!
+//! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     let base_url = "REPLACE_WITH_BASE_URL"; // Replace with base url of Home Assistant instance
 //!     let token = "REPLACE_WITH_TOKEN"; // Replace with token of Home Assistant instance
