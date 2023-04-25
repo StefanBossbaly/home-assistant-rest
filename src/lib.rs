@@ -40,6 +40,7 @@
 
 mod client;
 pub mod deserialize;
+pub mod errors;
 pub mod get;
 pub mod post;
 pub mod serialize;

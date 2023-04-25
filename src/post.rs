@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::Serialize;
 
-type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+use crate::errors;
 
 pub struct Request<S: Serialize> {
     pub endpoint: String,
@@ -11,7 +11,7 @@ pub struct Request<S: Serialize> {
 
 pub trait Requestable {
     type S: Serialize;
-    fn into_request(self) -> Result<Request<Self::S>>;
+    fn into_request(self) -> Result<Request<Self::S>, errors::Error>;
 }
 
 #[derive(Serialize, Debug)]
@@ -28,7 +28,7 @@ pub struct StateParams {
 
 impl Requestable for StateParams {
     type S = StateRequestBody;
-    fn into_request(self) -> Result<Request<Self::S>> {
+    fn into_request(self) -> Result<Request<Self::S>, errors::Error> {
         let body = StateRequestBody {
             state: self.state,
             attributes: self.attributes,
@@ -52,7 +52,7 @@ pub struct TemplateRequestBody {
 
 impl Requestable for TemplateParams {
     type S = TemplateRequestBody;
-    fn into_request(self) -> Result<Request<Self::S>> {
+    fn into_request(self) -> Result<Request<Self::S>, errors::Error> {
         let body = TemplateRequestBody {
             template: self.template,
         };

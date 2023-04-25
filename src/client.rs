@@ -7,7 +7,7 @@ use serde::Serialize;
 use url::Url;
 
 use crate::{
-    get,
+    errors, get,
     post::{self, Requestable},
 };
 
@@ -17,7 +17,7 @@ pub struct Client {
     token: String,
 }
 
-type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+type Result<T> = std::result::Result<T, errors::Error>;
 
 impl Client {
     /// Creates a new instance of the client

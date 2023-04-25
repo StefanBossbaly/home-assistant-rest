@@ -3,12 +3,13 @@ use std::collections::HashMap;
 use chrono::{DateTime, FixedOffset, NaiveDate};
 use serde::Deserialize;
 
-use crate::deserialize::{
-    deserialize_date, deserialize_datetime, deserialize_optional_datetime,
-    deserialize_optional_state_enum,
+use crate::{
+    deserialize::{
+        deserialize_date, deserialize_datetime, deserialize_optional_datetime,
+        deserialize_optional_state_enum,
+    },
+    errors,
 };
-
-type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[derive(Debug)]
 pub struct Request {
@@ -17,7 +18,7 @@ pub struct Request {
 }
 
 pub trait Parameters {
-    fn into_request(self) -> Result<Request>;
+    fn into_request(self) -> Result<Request, errors::Error>;
 }
 
 #[derive(Deserialize, Debug)]
@@ -97,7 +98,7 @@ pub struct HistoryParams {
 }
 
 impl Parameters for HistoryParams {
-    fn into_request(self) -> Result<Request> {
+    fn into_request(self) -> Result<Request, errors::Error> {
         let mut query = Vec::new();
         let mut endpoint = String::from("/api/history/period");
 
@@ -159,7 +160,7 @@ pub struct LogbookParams {
 }
 
 impl Parameters for LogbookParams {
-    fn into_request(self) -> Result<Request> {
+    fn into_request(self) -> Result<Request, errors::Error> {
         let mut query = Vec::new();
         let mut endpoint = String::from("/api/logbook");
 
@@ -236,7 +237,7 @@ pub struct CalendarsParams {
 }
 
 impl Parameters for CalendarsParams {
-    fn into_request(self) -> Result<Request> {
+    fn into_request(self) -> Result<Request, errors::Error> {
         let mut query = Vec::new();
         let endpoint = format!("/api/calendars/{}", &self.entity_id);
 
