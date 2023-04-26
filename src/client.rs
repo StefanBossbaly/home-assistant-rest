@@ -42,7 +42,7 @@ impl Client {
             .header(reqwest::header::CONTENT_TYPE, "application/json")
     }
 
-    fn build_put_request(&self, endpoint: &str) -> RequestBuilder {
+    fn build_post_request(&self, endpoint: &str) -> RequestBuilder {
         let mut url = self.url.clone();
         url.set_path(endpoint);
 
@@ -78,12 +78,26 @@ impl Client {
             .header(reqwest::header::CONTENT_TYPE, "application/json")
     }
 
+    fn build_post_request_with_query<S: Serialize>(
+        &self,
+        query_params: post::Request<S>,
+    ) -> RequestBuilder {
+        let mut url = self.url.clone();
+        url.set_path(&query_params.endpoint);
+
+        reqwest::Client::new()
+            .post(url)
+            .bearer_auth(self.token.clone())
+            .header(reqwest::header::CONTENT_TYPE, "application/json")
+            .json(&query_params.body)
+    }
+
     async fn post_text_request<S: Serialize>(
         &self,
         post_param: post::Request<S>,
     ) -> Result<String> {
         let request = self
-            .build_put_request(&post_param.endpoint)
+            .build_post_request(&post_param.endpoint)
             .json(&post_param.body)
             .send()
             .await?
@@ -138,6 +152,20 @@ impl Client {
             .send()
             .await?
             .json::<T>()
+            .await?;
+
+        Ok(request)
+    }
+
+    async fn post_request_with_query<S: Serialize, D: DeserializeOwned>(
+        &self,
+        request: post::Request<S>,
+    ) -> Result<D> {
+        let request = self
+            .build_post_request_with_query(request)
+            .send()
+            .await?
+            .json::<D>()
             .await?;
 
         Ok(request)
@@ -216,8 +244,8 @@ impl Client {
     }
 
     // Calls the `/api/states/<entity_id>` endpoint which updates or creates a state.
-    pub async fn post_states(&self, params: post::StateParams) -> Result<String> {
-        self.post_text_request(params.into_request()?).await
+    pub async fn post_states(&self, params: post::StateParams) -> Result<post::StateResponse> {
+        self.post_request_with_query(params.into_request()?).await
     }
 
     /// Calls the `/api/events/<event_type>` endpoint which fires an event. Currently unimplemented.

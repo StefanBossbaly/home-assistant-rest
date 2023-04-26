@@ -1,8 +1,8 @@
+use crate::deserialize::{deserialize_datetime, deserialize_optional_state_enum};
+use crate::{errors, get::StateEnum};
+use chrono::{DateTime, FixedOffset};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-
-use serde::Serialize;
-
-use crate::errors;
 
 pub struct Request<S: Serialize> {
     pub endpoint: String,
@@ -39,6 +39,31 @@ impl Requestable for StateParams {
             body,
         })
     }
+}
+
+#[derive(Deserialize, Debug)]
+pub struct StateContextStateResponse {
+    pub id: String,
+    pub parent_id: Option<String>,
+    pub user_id: String,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct StateResponse {
+    pub entity_id: String,
+
+    #[serde(deserialize_with = "deserialize_optional_state_enum")]
+    pub state: Option<StateEnum>,
+
+    pub attributes: HashMap<String, serde_json::Value>,
+
+    #[serde(deserialize_with = "deserialize_datetime")]
+    pub last_changed: DateTime<FixedOffset>,
+
+    #[serde(deserialize_with = "deserialize_datetime")]
+    pub last_updated: DateTime<FixedOffset>,
+
+    pub context: StateContextStateResponse,
 }
 
 pub struct TemplateParams {
