@@ -56,10 +56,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 | `/api/camera_proxy/<camera entity_id>` | GET          | ❌          | ❌     |
 | `/api/calendars`                       | GET          | ✅          | ✅     |
 | `/api/calendars/<calendar entity_id>`  | GET          | ✅          | ✅     |
-| `/api/states/<entity_id>`              | POST         | ✅          | ❌     |
+| `/api/states/<entity_id>`              | POST         | ✅          | ✅     |
 | `/api/events/<event_type>`             | POST         | ❌          | ❌     |
 | `/api/services/<domain>/<service>`     | POST         | ❌          | ❌     |
-| `/api/template`                        | POST         | ✅          | ❌     |
+| `/api/template`                        | POST         | ✅          | ✅     |
 | `/api/config/core/check_config`        | POST         | ❌          | ❌     |
 | `/api/intent/handle`                   | POST         | ❌          | ❌     |
 

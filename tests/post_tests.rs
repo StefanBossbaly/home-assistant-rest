@@ -169,3 +169,53 @@ async fn test_create_post_states_async() -> Result<(), Box<dyn std::error::Error
 
     Ok(())
 }
+
+#[tokio::test]
+async fn test_template1_async() -> Result<(), Box<dyn std::error::Error>> {
+    let mut server = mockito::Server::new();
+
+    let mock_server = create_mock_server(&mut server, "/api/template")
+        .match_body(r#"{"template":"It is {{ now() }}!"}"#)
+        .with_body(r#"It is 2023-04-27 08:27:40.075595-04:00!"#)
+        .create_async()
+        .await;
+
+    let client = Client::new(server.url().as_str(), "test_token")?;
+
+    let template_response = client
+        .post_template(post::TemplateParams {
+            template: "It is {{ now() }}!".to_owned(),
+        })
+        .await?;
+
+    assert_eq!(template_response, "It is 2023-04-27 08:27:40.075595-04:00!");
+
+    mock_server.assert_async().await;
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_template2_async() -> Result<(), Box<dyn std::error::Error>> {
+    let mut server = mockito::Server::new();
+
+    let mock_server = create_mock_server(&mut server, "/api/template")
+        .match_body(r#"{"template":"The sun is currently {{ states('sensor.sun') }}!"}"#)
+        .with_body(r#"The sun is currently above_horizon!"#)
+        .create_async()
+        .await;
+
+    let client = Client::new(server.url().as_str(), "test_token")?;
+
+    let template_response = client
+        .post_template(post::TemplateParams {
+            template: "The sun is currently {{ states('sensor.sun') }}!".to_owned(),
+        })
+        .await?;
+
+    assert_eq!(template_response, "The sun is currently above_horizon!");
+
+    mock_server.assert_async().await;
+
+    Ok(())
+}
