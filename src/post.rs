@@ -88,3 +88,9 @@ impl Requestable for TemplateParams {
         })
     }
 }
+
+#[derive(Deserialize, Debug)]
+pub struct CheckConfigResponse {
+    pub errors: Option<String>,
+    pub result: String,
+}

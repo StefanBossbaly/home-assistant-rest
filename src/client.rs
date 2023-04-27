@@ -141,6 +141,17 @@ impl Client {
         Ok(request)
     }
 
+    async fn post_request<T: DeserializeOwned>(&self, endpoint: &str) -> Result<T> {
+        let request = self
+            .build_post_request(endpoint)
+            .send()
+            .await?
+            .json::<T>()
+            .await?;
+
+        Ok(request)
+    }
+
     async fn get_request_with_query<T: DeserializeOwned, Q: get::Parameters>(
         &self,
         queryable: Q,
@@ -264,8 +275,8 @@ impl Client {
     }
 
     /// Calls the `/api/config/core/check_config` endpoint which triggers a check of the current configuration. Currently unimplemented.
-    pub async fn post_config_check(&self) -> Result<()> {
-        unimplemented!()
+    pub async fn post_config_check(&self) -> Result<post::CheckConfigResponse> {
+        self.post_request("/api/config/core/check_config").await
     }
 
     /// Calls the `/api/intent/handle` endpoint which handles an intent. Currently unimplemented.

@@ -219,3 +219,48 @@ async fn test_template2_async() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
+
+#[tokio::test]
+async fn test_check_config_good_async() -> Result<(), Box<dyn std::error::Error>> {
+    let mut server = mockito::Server::new();
+
+    let mock_server = create_mock_server(&mut server, "/api/config/core/check_config")
+        .with_body(r#"{"result":"valid","errors":null}"#)
+        .create_async()
+        .await;
+
+    let client = Client::new(server.url().as_str(), "test_token")?;
+
+    let config_check_response = client.post_config_check().await?;
+
+    assert_eq!(config_check_response.result, "valid");
+    assert_eq!(config_check_response.errors, None);
+
+    mock_server.assert_async().await;
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_check_config_bad_async() -> Result<(), Box<dyn std::error::Error>> {
+    let mut server = mockito::Server::new();
+
+    let mock_server = create_mock_server(&mut server, "/api/config/core/check_config")
+        .with_body(r#"{"result":"invalid","errors":"Platform error weather.darksky - Integration 'darksky' not found."}"#)
+        .create_async()
+        .await;
+
+    let client = Client::new(server.url().as_str(), "test_token")?;
+
+    let config_check_response = client.post_config_check().await?;
+
+    assert_eq!(config_check_response.result, "invalid");
+    assert_eq!(
+        config_check_response.errors,
+        Some("Platform error weather.darksky - Integration 'darksky' not found.".to_owned())
+    );
+
+    mock_server.assert_async().await;
+
+    Ok(())
+}

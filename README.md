@@ -60,7 +60,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 | `/api/events/<event_type>`             | POST         | ❌          | ❌     |
 | `/api/services/<domain>/<service>`     | POST         | ❌          | ❌     |
 | `/api/template`                        | POST         | ✅          | ✅     |
-| `/api/config/core/check_config`        | POST         | ❌          | ❌     |
+| `/api/config/core/check_config`        | POST         | ✅          | ✅     |
 | `/api/intent/handle`                   | POST         | ❌          | ❌     |
 
 ## Differences between the specification and implementation
