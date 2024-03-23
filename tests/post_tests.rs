@@ -13,7 +13,7 @@ fn create_mock_server(server: &mut ServerGuard, endpoint: &str) -> Mock {
 
 #[tokio::test]
 async fn test_update_post_states1_async() -> Result<(), Box<dyn std::error::Error>> {
-    let mut server = mockito::Server::new();
+    let mut server = mockito::Server::new_async().await;
 
     let mock_server = create_mock_server(&mut server, "/api/states/sensor.sun")
         .match_body(r#"{"state":"above_horizon","attributes":{}}"#)
@@ -67,7 +67,7 @@ async fn test_update_post_states1_async() -> Result<(), Box<dyn std::error::Erro
 
 #[tokio::test]
 async fn test_update_post_states2_async() -> Result<(), Box<dyn std::error::Error>> {
-    let mut server = mockito::Server::new();
+    let mut server = mockito::Server::new_async().await;
 
     let mock_server = create_mock_server(&mut server, "/api/states/climate.thermostat")
         .match_body(r#"{"state":"cool","attributes":{}}"#)
@@ -118,7 +118,7 @@ async fn test_update_post_states2_async() -> Result<(), Box<dyn std::error::Erro
 
 #[tokio::test]
 async fn test_create_post_states_async() -> Result<(), Box<dyn std::error::Error>> {
-    let mut server = mockito::Server::new();
+    let mut server = mockito::Server::new_async().await;
 
     let mock_server = create_mock_server(&mut server, "/api/states/sensor.test")
         .match_body(r#"{"state":"create_new","attributes":{}}"#)
@@ -172,7 +172,7 @@ async fn test_create_post_states_async() -> Result<(), Box<dyn std::error::Error
 
 #[tokio::test]
 async fn test_template1_async() -> Result<(), Box<dyn std::error::Error>> {
-    let mut server = mockito::Server::new();
+    let mut server = mockito::Server::new_async().await;
 
     let mock_server = create_mock_server(&mut server, "/api/template")
         .match_body(r#"{"template":"It is {{ now() }}!"}"#)
@@ -197,7 +197,7 @@ async fn test_template1_async() -> Result<(), Box<dyn std::error::Error>> {
 
 #[tokio::test]
 async fn test_template2_async() -> Result<(), Box<dyn std::error::Error>> {
-    let mut server = mockito::Server::new();
+    let mut server = mockito::Server::new_async().await;
 
     let mock_server = create_mock_server(&mut server, "/api/template")
         .match_body(r#"{"template":"The sun is currently {{ states('sensor.sun') }}!"}"#)
@@ -222,7 +222,7 @@ async fn test_template2_async() -> Result<(), Box<dyn std::error::Error>> {
 
 #[tokio::test]
 async fn test_check_config_good_async() -> Result<(), Box<dyn std::error::Error>> {
-    let mut server = mockito::Server::new();
+    let mut server = mockito::Server::new_async().await;
 
     let mock_server = create_mock_server(&mut server, "/api/config/core/check_config")
         .with_body(r#"{"result":"valid","errors":null}"#)
@@ -243,7 +243,7 @@ async fn test_check_config_good_async() -> Result<(), Box<dyn std::error::Error>
 
 #[tokio::test]
 async fn test_check_config_bad_async() -> Result<(), Box<dyn std::error::Error>> {
-    let mut server = mockito::Server::new();
+    let mut server = mockito::Server::new_async().await;
 
     let mock_server = create_mock_server(&mut server, "/api/config/core/check_config")
         .with_body(r#"{"result":"invalid","errors":"Platform error weather.darksky - Integration 'darksky' not found."}"#)

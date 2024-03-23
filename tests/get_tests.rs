@@ -16,7 +16,7 @@ fn create_mock_server(server: &mut ServerGuard, endpoint: &str) -> Mock {
 
 #[tokio::test]
 async fn test_good_api_status_async() -> Result<(), Box<dyn std::error::Error>> {
-    let mut server = mockito::Server::new();
+    let mut server = mockito::Server::new_async().await;
 
     let mock_server = create_mock_server(&mut server, "/api/")
         .match_query("")
@@ -36,7 +36,7 @@ async fn test_good_api_status_async() -> Result<(), Box<dyn std::error::Error>> 
 
 #[tokio::test]
 async fn test_bad_api_status_async() -> Result<(), Box<dyn std::error::Error>> {
-    let mut server = mockito::Server::new();
+    let mut server = mockito::Server::new_async().await;
 
     let mock_server = create_mock_server(&mut server, "/api/")
         .match_query("")
@@ -55,7 +55,7 @@ async fn test_bad_api_status_async() -> Result<(), Box<dyn std::error::Error>> {
 
 #[tokio::test]
 async fn test_good_config_async() -> Result<(), Box<dyn std::error::Error>> {
-    let mut server = mockito::Server::new();
+    let mut server = mockito::Server::new_async().await;
 
     let mock_server = create_mock_server(&mut server, "/api/config")
         .match_query("")
@@ -151,7 +151,7 @@ async fn test_good_config_async() -> Result<(), Box<dyn std::error::Error>> {
 
 #[tokio::test]
 async fn test_good_events_async() -> Result<(), Box<dyn std::error::Error>> {
-    let mut server = mockito::Server::new();
+    let mut server = mockito::Server::new_async().await;
 
     let mock_server = create_mock_server(&mut server, "/api/events")
         .match_query("")
@@ -187,7 +187,7 @@ async fn test_good_events_async() -> Result<(), Box<dyn std::error::Error>> {
 
 #[tokio::test]
 async fn test_good_services_async() -> Result<(), Box<dyn std::error::Error>> {
-    let mut server = mockito::Server::new();
+    let mut server = mockito::Server::new_async().await;
 
     let mock_server = create_mock_server(&mut server, "/api/services")
         .match_query("")
@@ -228,7 +228,7 @@ async fn test_good_services_async() -> Result<(), Box<dyn std::error::Error>> {
 
 #[tokio::test]
 async fn test_good_history_period_async() -> Result<(), Box<dyn std::error::Error>> {
-    let mut server = mockito::Server::new();
+    let mut server = mockito::Server::new_async().await;
 
     // TODO: Figure out why match_query doesn't work
     let mock_server = create_mock_server(
@@ -304,7 +304,7 @@ async fn test_good_history_period_async() -> Result<(), Box<dyn std::error::Erro
 
 #[tokio::test]
 async fn test_good_logbook_async() -> Result<(), Box<dyn std::error::Error>> {
-    let mut server = mockito::Server::new();
+    let mut server = mockito::Server::new_async().await;
 
     // TODO: Figure out why match_query doesn't work
     let mock_server = create_mock_server(&mut server, "/api/logbook/2023-03-27T23:42:00+00:00")
@@ -431,7 +431,7 @@ async fn test_good_logbook_async() -> Result<(), Box<dyn std::error::Error>> {
 
 #[tokio::test]
 async fn test_good_states_async() -> Result<(), Box<dyn std::error::Error>> {
-    let mut server = mockito::Server::new();
+    let mut server = mockito::Server::new_async().await;
 
     let mock_server = create_mock_server(&mut server, "/api/states")
         .match_query("")
@@ -497,7 +497,7 @@ async fn test_good_states_async() -> Result<(), Box<dyn std::error::Error>> {
 
 #[tokio::test]
 async fn test_good_state_async() -> Result<(), Box<dyn std::error::Error>> {
-    let mut server = mockito::Server::new();
+    let mut server = mockito::Server::new_async().await;
     let mock_server = create_mock_server(&mut server, "/api/states/sun.sun")
         .with_body(
             r#"
@@ -558,7 +558,7 @@ async fn test_good_state_async() -> Result<(), Box<dyn std::error::Error>> {
 
 #[tokio::test]
 async fn test_good_error_log_async() -> Result<(), Box<dyn std::error::Error>> {
-    let mut server = mockito::Server::new();
+    let mut server = mockito::Server::new_async().await;
 
     let mock_server = create_mock_server(&mut server, "/api/error_log")
         .with_body(
@@ -586,7 +586,7 @@ async fn test_good_error_log_async() -> Result<(), Box<dyn std::error::Error>> {
 
 #[tokio::test]
 async fn test_good_calendars_async() -> Result<(), Box<dyn std::error::Error>> {
-    let mut server = mockito::Server::new();
+    let mut server = mockito::Server::new_async().await;
 
     let mock_server = create_mock_server(&mut server, "/api/calendars")
         .match_query("")
@@ -622,7 +622,7 @@ async fn test_good_calendars_async() -> Result<(), Box<dyn std::error::Error>> {
 
 #[tokio::test]
 async fn test_good_calendars_entity_async() -> Result<(), Box<dyn std::error::Error>> {
-    let mut server = mockito::Server::new();
+    let mut server = mockito::Server::new_async().await;
 
     // TODO: Figure out why match_query doesn't work
     let mock_server = create_mock_server(&mut server, "/api/calendars/calendar.holidays?start=2022-05-01T07:00:00.000Z&end=2022-06-12T07:00:00.000Z")
