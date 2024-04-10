@@ -61,6 +61,9 @@ pub struct StateResponse {
     pub last_changed: DateTime<FixedOffset>,
 
     #[serde(deserialize_with = "deserialize_datetime")]
+    pub last_reported: DateTime<FixedOffset>,
+
+    #[serde(deserialize_with = "deserialize_datetime")]
     pub last_updated: DateTime<FixedOffset>,
 
     pub context: StateContextStateResponse,
