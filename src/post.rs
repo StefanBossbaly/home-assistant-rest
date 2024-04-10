@@ -45,7 +45,7 @@ impl Requestable for StateParams {
 pub struct StateContextStateResponse {
     pub id: String,
     pub parent_id: Option<String>,
-    pub user_id: String,
+    pub user_id: Option<String>,
 }
 
 #[derive(Deserialize, Debug)]

@@ -58,7 +58,7 @@ async fn test_update_post_states1_async() -> Result<(), Box<dyn std::error::Erro
     );
     assert_eq!(response.context.id, "01GYXD54C8D0YFJ6ASFDGJBJR9");
     assert_eq!(response.context.parent_id, None);
-    assert_eq!(response.context.user_id, "ae03ad0cefa6247baf4178ffce416910");
+    assert_eq!(response.context.user_id, Some("ae03ad0cefa6247baf4178ffce416910".to_string()));
 
     mock_server.assert_async().await;
 
@@ -71,7 +71,7 @@ async fn test_update_post_states2_async() -> Result<(), Box<dyn std::error::Erro
 
     let mock_server = create_mock_server(&mut server, "/api/states/climate.thermostat")
         .match_body(r#"{"state":"cool","attributes":{}}"#)
-        .with_body(r#"{"entity_id":"climate.thermostat","state":"cool","attributes":{},"last_changed":"2023-04-26T01:17:56.033828+00:00","last_updated":"2023-04-26T01:17:56.033828+00:00","context":{"id":"01GYXJ6XE1008RBVG58E2NKJ3N","parent_id":null,"user_id":"ae03ad0cefa6247baf4178ffce416910"}}"#)
+        .with_body(r#"{"entity_id":"climate.thermostat","state":"cool","attributes":{},"last_changed":"2023-04-26T01:17:56.033828+00:00","last_updated":"2023-04-26T01:17:56.033828+00:00","context":{"id":"01GYXJ6XE1008RBVG58E2NKJ3N","parent_id":null,"user_id":null}}"#)
         .create_async()
         .await;
 
@@ -109,7 +109,7 @@ async fn test_update_post_states2_async() -> Result<(), Box<dyn std::error::Erro
     );
     assert_eq!(response.context.id, "01GYXJ6XE1008RBVG58E2NKJ3N");
     assert_eq!(response.context.parent_id, None);
-    assert_eq!(response.context.user_id, "ae03ad0cefa6247baf4178ffce416910");
+    assert_eq!(response.context.user_id, None);
 
     mock_server.assert_async().await;
 
@@ -163,7 +163,7 @@ async fn test_create_post_states_async() -> Result<(), Box<dyn std::error::Error
     );
     assert_eq!(response.context.id, "01GYXJH920PEZGN2ZB0QRNY763");
     assert_eq!(response.context.parent_id, None);
-    assert_eq!(response.context.user_id, "ae03ad0cefa6247baf4178ffce416910");
+    assert_eq!(response.context.user_id, Some("ae03ad0cefa6247baf4178ffce416910".to_string()));
 
     mock_server.assert_async().await;
 
