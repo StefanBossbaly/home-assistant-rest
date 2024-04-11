@@ -30,7 +30,8 @@ async fn test_update_post_states1_async() -> Result<(), Box<dyn std::error::Erro
                     "parent_id":null,
                     "user_id":"ae03ad0cefa6247baf4178ffce416910"
                 }
-            }"#)
+            }"#,
+        )
         .create_async()
         .await;
 
@@ -66,8 +67,8 @@ async fn test_update_post_states1_async() -> Result<(), Box<dyn std::error::Erro
             NaiveDate::from_ymd_opt(2024, 4, 25).unwrap(),
             NaiveTime::from_hms_nano_opt(23, 49, 34, 728_773_000).unwrap()
         )
-            .and_local_timezone(timezone)
-            .unwrap()
+        .and_local_timezone(timezone)
+        .unwrap()
     );
     assert_eq!(
         response.last_updated,
@@ -106,7 +107,8 @@ async fn test_update_post_states2_async() -> Result<(), Box<dyn std::error::Erro
                     "parent_id":null,
                     "user_id":"ae03ad0cefa6247baf4178ffce416910"
                 }
-            }"#)
+            }"#,
+        )
         .create_async()
         .await;
 
@@ -139,8 +141,8 @@ async fn test_update_post_states2_async() -> Result<(), Box<dyn std::error::Erro
             NaiveDate::from_ymd_opt(2024, 4, 26).unwrap(),
             NaiveTime::from_hms_nano_opt(2, 17, 56, 33_828_000).unwrap()
         )
-            .and_local_timezone(timezone)
-            .unwrap()
+        .and_local_timezone(timezone)
+        .unwrap()
     );
     assert_eq!(
         response.last_updated,
@@ -179,7 +181,8 @@ async fn test_create_post_states_async() -> Result<(), Box<dyn std::error::Error
                     "parent_id":null,
                     "user_id":"ae03ad0cefa6247baf4178ffce416910"
                 }
-            }"#)
+            }"#,
+        )
         .create_async()
         .await;
 
@@ -215,8 +218,8 @@ async fn test_create_post_states_async() -> Result<(), Box<dyn std::error::Error
             NaiveDate::from_ymd_opt(2024, 4, 26).unwrap(),
             NaiveTime::from_hms_nano_opt(2, 23, 35, 616_516_000).unwrap()
         )
-            .and_local_timezone(timezone)
-            .unwrap()
+        .and_local_timezone(timezone)
+        .unwrap()
     );
     assert_eq!(
         response.last_updated,
@@ -224,8 +227,8 @@ async fn test_create_post_states_async() -> Result<(), Box<dyn std::error::Error
             NaiveDate::from_ymd_opt(2023, 4, 26).unwrap(),
             NaiveTime::from_hms_nano_opt(1, 23, 35, 616_516_000).unwrap()
         )
-            .and_local_timezone(timezone)
-            .unwrap()
+        .and_local_timezone(timezone)
+        .unwrap()
     );
     assert_eq!(response.context.id, "01GYXJH920PEZGN2ZB0QRNY763");
     assert_eq!(response.context.parent_id, None);
