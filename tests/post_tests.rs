@@ -17,7 +17,21 @@ async fn test_update_post_states1_async() -> Result<(), Box<dyn std::error::Erro
 
     let mock_server = create_mock_server(&mut server, "/api/states/sensor.sun")
         .match_body(r#"{"state":"above_horizon","attributes":{}}"#)
-        .with_body(r#"{"entity_id":"sensor.sun","state":"above_horizon","attributes":{},"last_changed":"2023-04-25T23:49:34.728773+00:00","last_updated":"2023-04-25T23:49:34.728773+00:00","context":{"id":"01GYXD54C8D0YFJ6ASFDGJBJR9","parent_id":null,"user_id":"ae03ad0cefa6247baf4178ffce416910"}}"#)
+        .with_body(
+            r#"{
+                "entity_id":"sensor.sun",
+                "state":"above_horizon",
+                "attributes":{},
+                "last_changed":"2023-04-25T23:49:34.728773+00:00",
+                "last_reported":"2024-04-25T23:49:34.728773+00:00",
+                "last_updated":"2023-04-25T23:49:34.728773+00:00",
+                "context":{
+                    "id":"01GYXD54C8D0YFJ6ASFDGJBJR9",
+                    "parent_id":null,
+                    "user_id":"ae03ad0cefa6247baf4178ffce416910"
+                }
+            }"#,
+        )
         .create_async()
         .await;
 
@@ -42,6 +56,15 @@ async fn test_update_post_states1_async() -> Result<(), Box<dyn std::error::Erro
         response.last_changed,
         NaiveDateTime::new(
             NaiveDate::from_ymd_opt(2023, 4, 25).unwrap(),
+            NaiveTime::from_hms_nano_opt(23, 49, 34, 728_773_000).unwrap()
+        )
+        .and_local_timezone(timezone)
+        .unwrap()
+    );
+    assert_eq!(
+        response.last_reported,
+        NaiveDateTime::new(
+            NaiveDate::from_ymd_opt(2024, 4, 25).unwrap(),
             NaiveTime::from_hms_nano_opt(23, 49, 34, 728_773_000).unwrap()
         )
         .and_local_timezone(timezone)
@@ -74,7 +97,21 @@ async fn test_update_post_states2_async() -> Result<(), Box<dyn std::error::Erro
 
     let mock_server = create_mock_server(&mut server, "/api/states/climate.thermostat")
         .match_body(r#"{"state":"cool","attributes":{}}"#)
-        .with_body(r#"{"entity_id":"climate.thermostat","state":"cool","attributes":{},"last_changed":"2023-04-26T01:17:56.033828+00:00","last_updated":"2023-04-26T01:17:56.033828+00:00","context":{"id":"01GYXJ6XE1008RBVG58E2NKJ3N","parent_id":null,"user_id":null}}"#)
+        .with_body(
+            r#"{
+                "entity_id":"climate.thermostat",
+                "state":"cool",
+                "attributes":{},
+                "last_changed":"2023-04-26T01:17:56.033828+00:00",
+                "last_reported":"2024-04-26T02:17:56.033828+00:00",
+                "last_updated":"2023-04-26T01:17:56.033828+00:00",
+                "context":{
+                    "id":"01GYXJ6XE1008RBVG58E2NKJ3N",
+                    "parent_id":null,
+                    "user_id":null
+                }
+            }"#,
+        )
         .create_async()
         .await;
 
@@ -97,6 +134,15 @@ async fn test_update_post_states2_async() -> Result<(), Box<dyn std::error::Erro
         NaiveDateTime::new(
             NaiveDate::from_ymd_opt(2023, 4, 26).unwrap(),
             NaiveTime::from_hms_nano_opt(1, 17, 56, 33_828_000).unwrap()
+        )
+        .and_local_timezone(timezone)
+        .unwrap()
+    );
+    assert_eq!(
+        response.last_reported,
+        NaiveDateTime::new(
+            NaiveDate::from_ymd_opt(2024, 4, 26).unwrap(),
+            NaiveTime::from_hms_nano_opt(2, 17, 56, 33_828_000).unwrap()
         )
         .and_local_timezone(timezone)
         .unwrap()
@@ -125,7 +171,21 @@ async fn test_create_post_states_async() -> Result<(), Box<dyn std::error::Error
 
     let mock_server = create_mock_server(&mut server, "/api/states/sensor.test")
         .match_body(r#"{"state":"create_new","attributes":{}}"#)
-        .with_body(r#"{"entity_id":"sensor.test","state":"create_new","attributes":{},"last_changed":"2023-04-26T01:23:35.616516+00:00","last_updated":"2023-04-26T01:23:35.616516+00:00","context":{"id":"01GYXJH920PEZGN2ZB0QRNY763","parent_id":null,"user_id":"ae03ad0cefa6247baf4178ffce416910"}}"#)
+        .with_body(
+            r#"{
+                "entity_id":"sensor.test",
+                "state":"create_new",
+                "attributes":{},
+                "last_changed":"2023-04-26T01:23:35.616516+00:00",
+                "last_reported":"2024-04-26T02:23:35.616516+00:00",
+                "last_updated":"2023-04-26T01:23:35.616516+00:00",
+                "context":{
+                    "id":"01GYXJH920PEZGN2ZB0QRNY763",
+                    "parent_id":null,
+                    "user_id":"ae03ad0cefa6247baf4178ffce416910"
+                }
+            }"#,
+        )
         .create_async()
         .await;
 
@@ -151,6 +211,15 @@ async fn test_create_post_states_async() -> Result<(), Box<dyn std::error::Error
         NaiveDateTime::new(
             NaiveDate::from_ymd_opt(2023, 4, 26).unwrap(),
             NaiveTime::from_hms_nano_opt(1, 23, 35, 616_516_000).unwrap()
+        )
+        .and_local_timezone(timezone)
+        .unwrap()
+    );
+    assert_eq!(
+        response.last_reported,
+        NaiveDateTime::new(
+            NaiveDate::from_ymd_opt(2024, 4, 26).unwrap(),
+            NaiveTime::from_hms_nano_opt(2, 23, 35, 616_516_000).unwrap()
         )
         .and_local_timezone(timezone)
         .unwrap()
