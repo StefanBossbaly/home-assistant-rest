@@ -43,6 +43,5 @@ pub mod deserialize;
 pub mod errors;
 pub mod get;
 pub mod post;
-pub mod serialize;
 
 pub use client::Client;
