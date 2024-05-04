@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use chrono::{FixedOffset, NaiveDate, NaiveDateTime, NaiveTime};
 use home_assistant_rest::{post, Client, StateEnum};
 use mockito::{Mock, ServerGuard};
+use serde_json::json;
 
 fn create_mock_server(server: &mut ServerGuard, endpoint: &str) -> Mock {
     server
@@ -238,6 +239,63 @@ async fn test_create_post_states_async() -> Result<(), Box<dyn std::error::Error
     assert_eq!(
         response.context.user_id,
         Some("ae03ad0cefa6247baf4178ffce416910".to_string())
+    );
+
+    mock_server.assert_async().await;
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_event_type_with_body_async() -> Result<(), Box<dyn std::error::Error>> {
+    let mut server = mockito::Server::new_async().await;
+
+    let mock_server = create_mock_server(&mut server, "/api/events/event_test_type")
+        .match_body(r#"{"next_rising":"2016-05-31T03:39:14+00:00"}"#)
+        .with_body(r#"{"message":"Event event_test_type fired."}"#)
+        .create_async()
+        .await;
+
+    let client = Client::new(server.url().as_str(), "test_token")?;
+
+    let event_response = client
+        .post_events(post::EventParams {
+            event_type: "event_test_type".to_owned(),
+            event_data: Some(json!({"next_rising":"2016-05-31T03:39:14+00:00"})),
+        })
+        .await?;
+
+    assert_eq!(
+        event_response.message,
+        "Event event_test_type fired.".to_owned()
+    );
+
+    mock_server.assert_async().await;
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_event_type_without_body_async() -> Result<(), Box<dyn std::error::Error>> {
+    let mut server = mockito::Server::new_async().await;
+
+    let mock_server = create_mock_server(&mut server, "/api/events/event_test_type")
+        .with_body(r#"{"message":"Event event_test_type fired."}"#)
+        .create_async()
+        .await;
+
+    let client = Client::new(server.url().as_str(), "test_token")?;
+
+    let event_response = client
+        .post_events(post::EventParams {
+            event_type: "event_test_type".to_owned(),
+            event_data: None,
+        })
+        .await?;
+
+    assert_eq!(
+        event_response.message,
+        "Event event_test_type fired.".to_owned()
     );
 
     mock_server.assert_async().await;

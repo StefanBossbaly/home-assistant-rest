@@ -259,9 +259,22 @@ impl Client {
         self.post_request_with_query(params.into_request()?).await
     }
 
-    /// Calls the `/api/events/<event_type>` endpoint which fires an event. Currently unimplemented.
-    pub async fn post_events(&self) -> Result<()> {
-        unimplemented!()
+    /// Calls the `/api/events/<event_type>` endpoint which fires an event.
+    pub async fn post_events(&self, params: post::EventParams) -> Result<post::EventResponse> {
+        let request = params.into_request()?;
+        let builder = self.build_post_request(&request.endpoint);
+
+        Ok(match request.body {
+            Some(data) => {
+                builder
+                    .json(&data)
+                    .send()
+                    .await?
+                    .json::<post::EventResponse>()
+                    .await?
+            }
+            None => builder.send().await?.json::<post::EventResponse>().await?,
+        })
     }
 
     /// Calls the `/api/services/<domain>/<service>` endpoint which calls a service. Currently unimplemented.

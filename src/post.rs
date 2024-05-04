@@ -64,6 +64,27 @@ pub struct StateResponse {
     pub context: StateContextStateResponse,
 }
 
+pub struct EventParams {
+    pub event_type: String,
+    pub event_data: Option<serde_json::Value>,
+}
+
+impl Requestable for EventParams {
+    type S = Option<serde_json::Value>;
+
+    fn into_request(self) -> Result<Request<Self::S>, errors::Error> {
+        Ok(Request {
+            endpoint: format!("/api/events/{}", self.event_type),
+            body: self.event_data,
+        })
+    }
+}
+
+#[derive(Deserialize, Debug)]
+pub struct EventResponse {
+    pub message: String,
+}
+
 pub struct TemplateParams {
     pub template: String,
 }

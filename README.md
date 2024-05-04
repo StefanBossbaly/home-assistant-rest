@@ -58,7 +58,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 | `/api/calendars`                       | GET          | ✅          | ✅     |
 | `/api/calendars/<calendar entity_id>`  | GET          | ✅          | ✅     |
 | `/api/states/<entity_id>`              | POST         | ✅          | ✅     |
-| `/api/events/<event_type>`             | POST         | ❌          | ❌     |
+| `/api/events/<event_type>`             | POST         | ✅          | ✅     |
 | `/api/services/<domain>/<service>`     | POST         | ❌          | ❌     |
 | `/api/template`                        | POST         | ✅          | ✅     |
 | `/api/config/core/check_config`        | POST         | ✅          | ✅     |
