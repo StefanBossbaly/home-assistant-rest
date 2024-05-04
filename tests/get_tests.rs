@@ -2,8 +2,8 @@ use std::vec;
 
 use chrono::{FixedOffset, NaiveDate, NaiveDateTime, NaiveTime, TimeZone};
 use home_assistant_rest::{
-    get::{self, CalendarsParams, DateVariant, StateEnum},
-    Client,
+    get::{self, CalendarsParams, DateVariant},
+    Client, StateEnum,
 };
 use mockito::{Mock, ServerGuard};
 
@@ -295,7 +295,7 @@ async fn test_good_history_period_async() -> Result<(), Box<dyn std::error::Erro
         history[0][0].entity_id.as_deref(),
         Some("sensor.weather_temperature")
     );
-    assert_eq!(history[0][0].state, Some(get::StateEnum::Decimal(-3.9)));
+    assert_eq!(history[0][0].state, Some(StateEnum::Decimal(-3.9)));
 
     mock_server.assert_async().await;
 

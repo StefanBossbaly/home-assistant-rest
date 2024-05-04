@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use chrono::{FixedOffset, NaiveDate, NaiveDateTime, NaiveTime};
-use home_assistant_rest::{get::StateEnum, post, Client};
+use home_assistant_rest::{post, Client, StateEnum};
 use mockito::{Mock, ServerGuard};
 
 fn create_mock_server(server: &mut ServerGuard, endpoint: &str) -> Mock {

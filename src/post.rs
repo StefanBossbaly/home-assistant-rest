@@ -1,5 +1,4 @@
-use crate::deserialize::{deserialize_datetime, deserialize_optional_state_enum};
-use crate::{errors, get::StateEnum};
+use crate::{errors, StateEnum};
 use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -52,18 +51,14 @@ pub struct StateContextStateResponse {
 pub struct StateResponse {
     pub entity_id: String,
 
-    #[serde(deserialize_with = "deserialize_optional_state_enum")]
     pub state: Option<StateEnum>,
 
     pub attributes: HashMap<String, serde_json::Value>,
 
-    #[serde(deserialize_with = "deserialize_datetime")]
     pub last_changed: DateTime<FixedOffset>,
 
-    #[serde(deserialize_with = "deserialize_datetime")]
     pub last_reported: DateTime<FixedOffset>,
 
-    #[serde(deserialize_with = "deserialize_datetime")]
     pub last_updated: DateTime<FixedOffset>,
 
     pub context: StateContextStateResponse,

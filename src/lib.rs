@@ -7,7 +7,7 @@
 //! # Example Usage
 //!
 //! ```rust,no_run
-//! use home_assistant_rest::{get::StateEnum, Client};
+//! use home_assistant_rest::{StateEnum, Client};
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -39,9 +39,10 @@
 //! ```
 
 mod client;
-pub mod deserialize;
 pub mod errors;
 pub mod get;
 pub mod post;
+mod state_enum;
 
 pub use client::Client;
+pub use state_enum::StateEnum;

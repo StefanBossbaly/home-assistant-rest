@@ -3,13 +3,7 @@ use std::collections::HashMap;
 use chrono::{DateTime, FixedOffset, NaiveDate};
 use serde::Deserialize;
 
-use crate::{
-    deserialize::{
-        deserialize_date, deserialize_datetime, deserialize_optional_datetime,
-        deserialize_optional_state_enum,
-    },
-    errors,
-};
+use crate::{errors, StateEnum};
 
 #[derive(Debug)]
 pub struct Request {
@@ -19,29 +13,6 @@ pub struct Request {
 
 pub trait Parameters {
     fn into_request(self) -> Result<Request, errors::Error>;
-}
-
-#[derive(Deserialize, Debug)]
-#[serde(untagged)]
-pub enum StateEnum {
-    Integer(i64),
-    Decimal(f64),
-    Boolean(bool),
-    String(String),
-}
-
-impl std::cmp::Eq for StateEnum {}
-
-impl std::cmp::PartialEq for StateEnum {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (StateEnum::Integer(x), StateEnum::Integer(y)) => *x == *y,
-            (StateEnum::Decimal(x), StateEnum::Decimal(y)) => *x == *y,
-            (StateEnum::Boolean(x), StateEnum::Boolean(y)) => *x == *y,
-            (StateEnum::String(x), StateEnum::String(y)) => *x == *y,
-            _ => false,
-        }
-    }
 }
 
 #[derive(Deserialize, Debug)]
@@ -141,14 +112,11 @@ pub struct HistoryEntry {
     pub entity_id: Option<String>,
 
     #[serde(default)]
-    #[serde(deserialize_with = "deserialize_optional_datetime")]
     pub last_changed: Option<DateTime<FixedOffset>>,
 
     #[serde(default)]
-    #[serde(deserialize_with = "deserialize_optional_datetime")]
     pub last_updated: Option<DateTime<FixedOffset>>,
 
-    #[serde(deserialize_with = "deserialize_optional_state_enum")]
     pub state: Option<StateEnum>,
 }
 
@@ -196,7 +164,6 @@ pub struct LogbookEntry {
     pub name: Option<String>,
 
     #[serde(default)]
-    #[serde(deserialize_with = "deserialize_optional_datetime")]
     pub when: Option<DateTime<FixedOffset>>,
 }
 
@@ -207,10 +174,8 @@ pub struct StateEntry {
     pub attributes: HashMap<String, serde_json::Value>,
     pub entity_id: String,
 
-    #[serde(deserialize_with = "deserialize_datetime")]
     pub last_changed: DateTime<FixedOffset>,
 
-    #[serde(deserialize_with = "deserialize_optional_state_enum")]
     pub state: Option<StateEnum>,
 }
 
@@ -219,13 +184,10 @@ pub struct StatesEntityResponse {
     pub attributes: HashMap<String, serde_json::Value>,
     pub entity_id: String,
 
-    #[serde(deserialize_with = "deserialize_datetime")]
     pub last_changed: DateTime<FixedOffset>,
 
-    #[serde(deserialize_with = "deserialize_datetime")]
     pub last_updated: DateTime<FixedOffset>,
 
-    #[serde(deserialize_with = "deserialize_optional_state_enum")]
     pub state: Option<StateEnum>,
 }
 
@@ -266,13 +228,10 @@ pub struct CalendarEntry {
 
 #[derive(Deserialize, Debug)]
 pub enum DateVariant {
-    #[serde(
-        rename(deserialize = "dateTime"),
-        deserialize_with = "deserialize_datetime"
-    )]
+    #[serde(rename(deserialize = "dateTime"))]
     DateTime(DateTime<FixedOffset>),
 
-    #[serde(rename(deserialize = "date"), deserialize_with = "deserialize_date")]
+    #[serde(rename(deserialize = "date"))]
     Date(NaiveDate),
 }
 
