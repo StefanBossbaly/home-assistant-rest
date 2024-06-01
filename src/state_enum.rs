@@ -1,8 +1,11 @@
-use std::fmt;
+use std::{
+    cmp::{Eq, PartialEq},
+    fmt,
+};
 
 use serde::{de, Deserialize, Deserializer};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum StateEnum {
     Integer(i64),
     Decimal(f64),
@@ -10,9 +13,9 @@ pub enum StateEnum {
     String(String),
 }
 
-impl std::cmp::Eq for StateEnum {}
+impl Eq for StateEnum {}
 
-impl std::cmp::PartialEq for StateEnum {
+impl PartialEq for StateEnum {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (StateEnum::Integer(x), StateEnum::Integer(y)) => *x == *y,

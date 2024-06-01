@@ -1,8 +1,11 @@
-use crate::{errors, StateEnum};
-use chrono::{DateTime, FixedOffset};
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+use crate::{errors, StateEnum};
+
+use chrono::{DateTime, FixedOffset};
+use serde::{Deserialize, Serialize};
+
+/// Represents a POST request that will be made to the home assistant server
 pub struct Request<S: Serialize> {
     pub endpoint: String,
     pub body: S,
@@ -40,26 +43,38 @@ impl Requestable for StateParams {
     }
 }
 
-#[derive(Deserialize, Debug)]
+/// The context of the trigger that caused the state change
+///
+/// https://github.com/home-assistant/core/blob/2a4686e1b7703e33271f40aeca0325659166c6fb/homeassistant/core.py#L1250
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct StateContextStateResponse {
     pub id: String,
     pub parent_id: Option<String>,
     pub user_id: Option<String>,
 }
 
-#[derive(Deserialize, Debug)]
+/// Response from the `/api/states/<entity_id>` endpoint
+///
+/// https://github.com/home-assistant/core/blob/2a4686e1b7703e33271f40aeca0325659166c6fb/homeassistant/core.py#L1741
+#[derive(Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct StateResponse {
+    /// The unique identifier of the entity
     pub entity_id: String,
 
+    /// The current state of the entity
     pub state: Option<StateEnum>,
 
+    /// Extra information about the entity and the state
     pub attributes: HashMap<String, serde_json::Value>,
 
-    pub last_changed: DateTime<FixedOffset>,
+    /// The last time the entity changed state
+    pub last_changed: Option<DateTime<FixedOffset>>,
 
-    pub last_reported: DateTime<FixedOffset>,
+    /// The last time the state was reported
+    pub last_reported: Option<DateTime<FixedOffset>>,
 
-    pub last_updated: DateTime<FixedOffset>,
+    /// The last time the state or attributes were changed
+    pub last_updated: Option<DateTime<FixedOffset>>,
 
     pub context: StateContextStateResponse,
 }
