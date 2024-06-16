@@ -8,14 +8,19 @@ repository = "https://github.com/StefanBossbaly/home-assistant-rest/"
 authors = ["Stefan Bossbaly <sbossb@gmail.com>"]
 license = "MIT"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+include = [
+    "/src/**/*.rs",
+    "/examples/*.rs",
+    "/README.md", 
+    "/LICENSE"
+]
 
 [dependencies]
 chrono = { version = "0.4.38", features = ["serde"] }
 reqwest = { version = "0.12.4", features = ["json"] }
 serde = { version = "1.0.203", features = ["derive"] }
 serde_json = "1.0.117"
-url = "2.5.0"
+url = "2.5.1"
 serde_qs = "0.12.0"
 log = "0.4.21"
 bytes = "1.6.0"
@@ -24,3 +29,5 @@ thiserror = "1.0.61"
 [dev-dependencies]
 mockito = "1.4.0"
 tokio = { version = "1.38.0", features = ["full"] }
+serde_path_to_error = "0.1.16"
+anyhow = "1.0.86"
