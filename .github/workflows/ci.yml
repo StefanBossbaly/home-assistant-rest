@@ -2,30 +2,43 @@ name: Rust CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
-  test:
-    name: Test
+  lint:
+    name: Lint
     strategy:
       matrix:
         os:
           - ubuntu-latest
           - macos-latest
-          - windows-latest
-        rust:
+        toolchain:
           - stable
           - beta
           - nightly
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.toolchain != 'stable' }}
     steps:
       - name: Checkout Source
         uses: actions/checkout@v4
 
-      - name: Install Rust Toolchain
+      - name: Install Stable Rust Toolchain
+        if: matrix.toolchain == 'stable'
         uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Install Beta Rust Toolchain
+        if: matrix.toolchain == 'beta'
+        uses: dtolnay/rust-toolchain@beta
+        with:
+          components: rustfmt, clippy
+
+      - name: Install Nightly Rust Toolchain
+        if: matrix.toolchain == 'nightly'
+        uses: dtolnay/rust-toolchain@nightly
         with:
           components: rustfmt, clippy
 
@@ -38,22 +51,79 @@ jobs:
           rustc --version
           cargo clippy --version
 
-      - name: Lint
+      - name: Format Check
         run: |
           cargo fmt -- --check
+
+      - name: Lint
+        run: |
           cargo clippy -- -D warnings
-
-      - name: Test
-        run: |
-          cargo check
-          cargo test --all
-
-      - name: Build
-        run: |
-          cargo build --release
 
       - name: Dry Publish
         uses: katyo/publish-crates@v2
         with:
           dry-run: true
           ignore-unpublished-changes: true
+
+  test:
+    name: Test
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+        features:
+          - default
+          - serde_debugging
+        toolchain:
+          - stable
+          - beta
+          - nightly
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.toolchain != 'stable' }}
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Install Stable Rust Toolchain
+        if: matrix.toolchain == 'stable'
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Beta Rust Toolchain
+        if: matrix.toolchain == 'beta'
+        uses: dtolnay/rust-toolchain@beta
+
+      - name: Install Nightly Rust Toolchain
+        if: matrix.toolchain == 'nightly'
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Setup Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Display Toolchain Information
+        run: |
+          cargo --version --verbose
+          rustc --version
+          cargo clippy --version
+
+      - name: Test
+        if: matrix.features == 'default'
+        run: |
+          cargo check
+          cargo test --all
+
+      - name: Test
+        if: matrix.features != 'default'
+        run: |
+          cargo check --features ${{ matrix.features }}
+          cargo test --all --features ${{ matrix.features }}
+
+      - name: Build
+        if: matrix.features == 'default'
+        run: |
+          cargo build --release
+
+      - name: Build
+        if: matrix.features != 'default'
+        run: |
+          cargo build --release --features ${{ matrix.features }}

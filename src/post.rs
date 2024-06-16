@@ -1,7 +1,9 @@
-use crate::{errors, StateEnum};
+use crate::StateEnum;
+
+use std::collections::HashMap;
+
 use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 pub struct Request<S: Serialize> {
     pub endpoint: String,
@@ -10,7 +12,8 @@ pub struct Request<S: Serialize> {
 
 pub trait Requestable {
     type S: Serialize;
-    fn into_request(self) -> Result<Request<Self::S>, errors::Error>;
+
+    fn into_request(self) -> Request<Self::S>;
 }
 
 #[derive(Serialize, Debug)]
@@ -27,16 +30,17 @@ pub struct StateParams {
 
 impl Requestable for StateParams {
     type S = StateRequestBody;
-    fn into_request(self) -> Result<Request<Self::S>, errors::Error> {
+
+    fn into_request(self) -> Request<Self::S> {
         let body = StateRequestBody {
             state: self.state,
             attributes: self.attributes,
         };
 
-        Ok(Request {
+        Request {
             endpoint: format!("/api/states/{}", self.entity_id),
             body,
-        })
+        }
     }
 }
 
@@ -72,11 +76,11 @@ pub struct EventParams {
 impl Requestable for EventParams {
     type S = Option<serde_json::Value>;
 
-    fn into_request(self) -> Result<Request<Self::S>, errors::Error> {
-        Ok(Request {
+    fn into_request(self) -> Request<Self::S> {
+        Request {
             endpoint: format!("/api/events/{}", self.event_type),
             body: self.event_data,
-        })
+        }
     }
 }
 
@@ -96,15 +100,16 @@ pub struct TemplateRequestBody {
 
 impl Requestable for TemplateParams {
     type S = TemplateRequestBody;
-    fn into_request(self) -> Result<Request<Self::S>, errors::Error> {
+
+    fn into_request(self) -> Request<Self::S> {
         let body = TemplateRequestBody {
             template: self.template,
         };
 
-        Ok(Request {
+        Request {
             endpoint: "/api/template".to_owned(),
             body,
-        })
+        }
     }
 }
 

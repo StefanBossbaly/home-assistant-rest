@@ -1,9 +1,9 @@
+use crate::StateEnum;
+
 use std::collections::HashMap;
 
 use chrono::{DateTime, FixedOffset, NaiveDate};
 use serde::Deserialize;
-
-use crate::{errors, StateEnum};
 
 #[derive(Debug)]
 pub struct Request {
@@ -12,7 +12,7 @@ pub struct Request {
 }
 
 pub trait Parameters {
-    fn into_request(self) -> Result<Request, errors::Error>;
+    fn into_request(self) -> Request;
 }
 
 #[derive(Deserialize, Debug)]
@@ -69,7 +69,7 @@ pub struct HistoryParams {
 }
 
 impl Parameters for HistoryParams {
-    fn into_request(self) -> Result<Request, errors::Error> {
+    fn into_request(self) -> Request {
         let mut query = Vec::new();
         let mut endpoint = String::from("/api/history/period");
 
@@ -97,7 +97,7 @@ impl Parameters for HistoryParams {
             query.push(("significant_changes_only".to_owned(), "true".to_owned()));
         }
 
-        Ok(Request { endpoint, query })
+        Request { endpoint, query }
     }
 }
 
@@ -128,7 +128,7 @@ pub struct LogbookParams {
 }
 
 impl Parameters for LogbookParams {
-    fn into_request(self) -> Result<Request, errors::Error> {
+    fn into_request(self) -> Request {
         let mut query = Vec::new();
         let mut endpoint = String::from("/api/logbook");
 
@@ -144,7 +144,7 @@ impl Parameters for LogbookParams {
             query.push(("end_time".to_owned(), end_time.to_rfc3339()));
         }
 
-        Ok(Request { endpoint, query })
+        Request { endpoint, query }
     }
 }
 
@@ -199,7 +199,7 @@ pub struct CalendarsParams {
 }
 
 impl Parameters for CalendarsParams {
-    fn into_request(self) -> Result<Request, errors::Error> {
+    fn into_request(self) -> Request {
         let mut query = Vec::new();
         let endpoint = format!("/api/calendars/{}", &self.entity_id);
 
@@ -214,7 +214,7 @@ impl Parameters for CalendarsParams {
                 .to_rfc3339_opts(chrono::SecondsFormat::Millis, true),
         ));
 
-        Ok(Request { endpoint, query })
+        Request { endpoint, query }
     }
 }
 

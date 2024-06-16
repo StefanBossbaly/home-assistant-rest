@@ -2,7 +2,7 @@ use std::fmt;
 
 use serde::{de, Deserialize, Deserializer};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum StateEnum {
     Integer(i64),
     Decimal(f64),
