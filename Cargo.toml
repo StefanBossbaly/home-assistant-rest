@@ -15,6 +15,9 @@ include = [
     "/LICENSE"
 ]
 
+[features]
+serde_debugging = ["dep:serde_path_to_error"]
+
 [dependencies]
 chrono = { version = "0.4.38", features = ["serde"] }
 reqwest = { version = "0.12.4", features = ["json"] }
@@ -25,9 +28,9 @@ serde_qs = "0.12.0"
 log = "0.4.21"
 bytes = "1.6.0"
 thiserror = "1.0.61"
+serde_path_to_error = { version = "0.1.16", optional = true }
 
 [dev-dependencies]
 mockito = "1.4.0"
 tokio = { version = "1.38.0", features = ["full"] }
-serde_path_to_error = "0.1.16"
 anyhow = "1.0.86"

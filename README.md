@@ -41,6 +41,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
+## Features
+
+- `serde_debugging` (default: `false`) - Enables `with_debugging` functions that
+  function the same as their counterparts with the exception that they use the
+  [`serde_path_to_error`](https://crates.io/crates/serde_path_to_error) as the
+  deserialization adapter and will return `DeserializeFailed` variant that holds
+  the path to struct field that failed deserialization and the full response
+  from the endpoint. Serde errors can be very cryptic and very hard to debug.
+  These functions allow the developer to easily find field that failed
+  deserialization at the cost of saving the response as well as maintaining a
+  path to the current field during deserialization.
+
 ## API Status
 
 | Endpoint                               | Request Type | Implemented | Tested |
