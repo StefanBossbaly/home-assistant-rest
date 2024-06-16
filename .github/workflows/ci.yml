@@ -48,7 +48,7 @@ jobs:
       - name: Display Toolchain Information
         run: |
           cargo --version --verbose
-          rustc --version
+          rustc --version --verbose
           cargo clippy --version
 
       - name: Format Check
@@ -103,8 +103,7 @@ jobs:
       - name: Display Toolchain Information
         run: |
           cargo --version --verbose
-          rustc --version
-          cargo clippy --version
+          rustc --version --verbose
 
       - name: Test
         if: matrix.features == 'default'
