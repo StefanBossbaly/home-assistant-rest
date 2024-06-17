@@ -115,7 +115,9 @@ jobs:
         if: matrix.features != 'default'
         run: |
           cargo check --features ${{ matrix.features }}
-          cargo test --all --features ${{ matrix.features }}
+          cargo test --lib --features ${{ matrix.features }}
+          cargo test --features ${{ matrix.features }} get_tests
+          cargo test --features ${{ matrix.features }} post_tests
 
       - name: Build
         if: matrix.features == 'default'
