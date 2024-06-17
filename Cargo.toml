@@ -34,3 +34,4 @@ serde_path_to_error = { version = "0.1.16", optional = true }
 mockito = "1.4.0"
 tokio = { version = "1.38.0", features = ["full"] }
 anyhow = "1.0.86"
+serde_path_to_error = "0.1.16"
