@@ -1,0 +1,53 @@
+on:
+  schedule:
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+name: Update Dependancies
+
+jobs:
+  update-dependancies:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Timestamp Action
+        run: |
+          echo "NOW=$(date +'%Y-%m-%d-%I-%M-%S')" >> $GITHUB_OUTPUT
+        id: version 
+  
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Cargo Edit
+        run: |
+          cargo install -f cargo-edit
+
+      - name: Update Rust Dependencies
+        id: update-rust-dependencies
+        run: |
+          cargo update
+          echo 'CARGO_UPGRADE_OUTPUT<<EOF' >> $GITHUB_OUTPUT
+          cargo-upgrade upgrade --incompatible 2>&1 >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          add-paths: |
+            Cargo.toml
+          title: Update dependancies
+          body: |
+            Updated dependancies:
+            ```
+            ${{ steps.update-rust-dependencies.outputs.CARGO_UPGRADE_OUTPUT }}
+            ```
+          commit-message: |
+            Update dependancies
+
+            ${{ steps.update-rust-dependencies.outputs.CARGO_UPGRADE_OUTPUT }}
+          assignees: StefanBossbaly
+          branch: update-dependancies-${{ steps.version.outputs.NOW }}
+          delete-branch: true
+          token: ${{ secrets.PAT_TOKEN }}
