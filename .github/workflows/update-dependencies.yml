@@ -3,10 +3,10 @@ on:
     - cron: "0 0 * * 0"
   workflow_dispatch:
 
-name: Update Dependancies
+name: Update Dependencies
 
 jobs:
-  update-dependancies:
+  update-dependencies:
     runs-on: ubuntu-latest
     steps:
       - name: Timestamp Action
@@ -37,17 +37,17 @@ jobs:
         with:
           add-paths: |
             Cargo.toml
-          title: Update dependancies
+          title: Update dependencies
           body: |
-            Updated dependancies:
+            Updated dependencies:
             ```
             ${{ steps.update-rust-dependencies.outputs.CARGO_UPGRADE_OUTPUT }}
             ```
           commit-message: |
-            Update dependancies
+            Update dependencies
 
             ${{ steps.update-rust-dependencies.outputs.CARGO_UPGRADE_OUTPUT }}
           assignees: StefanBossbaly
-          branch: update-dependancies-${{ steps.version.outputs.NOW }}
+          branch: update-dependencies-${{ steps.version.outputs.NOW }}
           delete-branch: true
           token: ${{ secrets.PAT_TOKEN }}
